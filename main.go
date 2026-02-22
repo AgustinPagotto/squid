@@ -8,22 +8,19 @@ import (
 )
 
 type model struct {
-	choices []string // items on the to-do list
-	cursor  int      // which to-do list item our cursor is pointing at
+	choices []string
+	cursor  int
+	page    string
 }
 
 func initialModel() model {
 	return model{
-		// Our to-do list is a grocery list
 		choices: []string{"Save Note", "See Notes"},
-
-		// A map which indicates which choices are selected. We're using
-		// the  map like a mathematical set. The keys refer to the indexes
-		// of the `choices` slice, above.
+		page:    "dashboard",
 	}
 }
+
 func (m model) Init() tea.Cmd {
-	// Just return `nil`, which means "no I/O right now, please."
 	return nil
 }
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -53,16 +50,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// The "enter" key and the spacebar (a literal space) toggle
 			// the selected state for the item that the cursor is pointing at.
-			//		case "enter", " ":
-			//			_, ok := m.selected[m.cursor]
-			//			if ok {
-			//				delete(m.selected, m.cursor)
-			//			} else {
-			//				m.selected[m.cursor] = struct{}{}
-			//			}
+		case "enter", " ":
+			switch m.choices[m.cursor] {
+			case "See Notes":
+				m.page = "notes"
+			case "Save Note":
+				m.page = "notes-create"
+			default:
+				m.page = "dashboard"
+			}
 		}
 	}
-
 	// Return the updated model to the Bubble Tea runtime for processing.
 	// Note that we're not returning a command.
 	return m, nil
@@ -85,6 +83,7 @@ func (m model) View() string {
 `
 
 	s := squid
+	s += m.page
 	s += "                  D A S H B O A R D\n"
 	s += "    ════════════════════════════════════════════════════\n\n"
 
