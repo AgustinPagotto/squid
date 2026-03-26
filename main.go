@@ -1,8 +1,10 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
+
+	"github.com/AgustinPagotto/squid/internal/cli"
 )
 
 type NoteType int
@@ -13,44 +15,63 @@ const (
 )
 
 func main() {
-	var note string
-	var noteType string
-	var help bool
-	var typeOfNote NoteType
-	flag.StringVar(&note, "note", "", "Note to add to the project")
-	flag.StringVar(&note, "n", "", "Note to add to the project")
-	flag.StringVar(&noteType, "notetype", "", "Note type, you can do n for note or c for checklist")
-	flag.StringVar(&noteType, "nt", "", "Note type, you can do n for note or c for checklist")
-	flag.BoolVar(&help, "help", false, "Ask for help")
-	flag.BoolVar(&help, "h", false, "Ask for help")
-	flag.Parse()
-	if help {
-		fmt.Print("Help")
+	if len(os.Args) < 2 {
+		fmt.Println("please add a subcommand or enter -h flag to show info")
 		return
 	}
-	if note == "" || noteType == "" {
-		fmt.Print("you need to provide all the info")
+	switch os.Args[1] {
+	case "-h":
+		cli.PrintHelp()
 		return
-	}
-	var fileName string
-	switch noteType {
-	case "n":
-		typeOfNote = NoteTypeNote
-		fileName = "notes.txt"
-	case "c":
-		typeOfNote = NoteTypeChecklist
-		fileName = "checklist.txt"
+	case "notes":
+		fmt.Println("notes")
+		return
+	case "context":
+		fmt.Println("context")
+		return
 	default:
-		fmt.Print("You need to provide a compatible note title (c or n)")
+		fmt.Println("subcommand not valid")
 		return
 	}
-	file, err := openFile(fileName)
-	if err != nil {
-		fmt.Println("There was an error trying to open the file: ", err)
-		return
-	}
-	defer file.Close()
-	writeFile(file, typeOfNote, note)
-	file.Seek(0, 0)
-	countNotes(file)
+	// fmt.Println(os.Args[1])
+	//
+	//	if help {
+	//		fmt.Print("Help")
+	//		return
+	//	}
+	//
+	//	if note == "" || noteType == "" {
+	//		fmt.Print("you need to provide all the info")
+	//		return
+	//	}
+	//
+	// var fileName string
+	// switch noteType {
+	// case "n":
+	//
+	//	typeOfNote = NoteTypeNote
+	//	fileName = "notes.txt"
+	//
+	// case "c":
+	//
+	//	typeOfNote = NoteTypeChecklist
+	//	fileName = "checklist.txt"
+	//
+	// default:
+	//
+	//		fmt.Print("You need to provide a compatible note title (c or n)")
+	//		return
+	//	}
+	//
+	// file, err := openFile(fileName)
+	//
+	//	if err != nil {
+	//		fmt.Println("There was an error trying to open the file: ", err)
+	//		return
+	//	}
+	//
+	// defer file.Close()
+	// writeFile(file, typeOfNote, note)
+	// file.Seek(0, 0)
+	// countNotes(file)
 }
