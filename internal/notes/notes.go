@@ -53,6 +53,22 @@ func Handle(args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	case "del":
+		if len(args) < 2 {
+			fmt.Println("please provide a note id to delete")
+			return
+		}
+
+		id, err := strconv.Atoi(args[1])
+		if err != nil {
+			fmt.Println("invalid note id")
+			return
+		}
+
+		err = handleDelete(id)
+		if err != nil {
+			fmt.Println(err)
+		}
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
@@ -147,6 +163,32 @@ func handleEdit(id int) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func handleDelete(id int) error {
+	note, err := findNote(id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Are you sure you want to delete note: %q? [Y/n]: ", note.Title)
+
+	var input string
+	fmt.Scanln(&input)
+
+	input = strings.TrimSpace(strings.ToLower(input))
+
+	if input != "" && input != "y" && input != "yes" {
+		fmt.Println("delete aborted")
+		return nil
+	}
+
+	if err := delete(id); err != nil {
+		return err
+	}
+
+	fmt.Println("note deleted")
 	return nil
 }
 

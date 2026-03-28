@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 )
 
 const notesFile = "notes.json"
@@ -49,6 +50,29 @@ func save(note Note) error {
 	}
 	note.ID = nextID(notes)
 	notes = append(notes, note)
+	jsonNotes, err := json.MarshalIndent(notes, "", " ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(jsonNotes))
+	err = os.WriteFile(notesFile, jsonNotes, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func delete(id int) error {
+	notes, err := load()
+	if err != nil {
+		return err
+	}
+	for i := range notes {
+		if notes[i].ID == id {
+			notes = slices.Delete(notes, i, i+1)
+			break
+		}
+	}
 	jsonNotes, err := json.MarshalIndent(notes, "", " ")
 	if err != nil {
 		return err

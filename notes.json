@@ -1,24 +1,10 @@
 [
  {
   "ID": 0,
-  "Title": "this is a title",
-  "Body": "this is the mega body super mega big",
-  "CreatedAt": "2026-03-27T23:28:15.239072-03:00",
-  "UpdatedAt": "2026-03-27T23:28:15.239072-03:00"
- },
- {
-  "ID": 0,
   "Title": "Another title?",
   "Body": "yes of course",
   "CreatedAt": "2026-03-27T23:28:35.567827-03:00",
   "UpdatedAt": "2026-03-27T23:28:35.567827-03:00"
- },
- {
-  "ID": 1,
-  "Title": "this is the titleeeee",
-  "Body": "and this is the last time that i need to change this right?",
-  "CreatedAt": "2026-03-28T15:19:13.843666-03:00",
-  "UpdatedAt": "2026-03-28T15:19:13.843667-03:00"
  },
  {
   "ID": 2,
