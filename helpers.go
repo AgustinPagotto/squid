@@ -2,34 +2,36 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
 
-//func createAndWrite(note string) {
-//	// Create or trunkate file
-//	file, err := os.Create("file.md")
-//	if err != nil {
-//		fmt.Print("Couldn't create the initial file", err)
-//	}
-//	// Create buffer to read/write the file
-//	var a = make([]byte, 10)
-//	var b []byte
-//	b = []byte(note)
-//	// Write the phrase to the file
-//	file.Write(b)
-//	// Moves the cursor to the start of the file
-//	_, _ = file.Seek(0, 0)
-//	// Loop that reads the file 10 bytes by 10 bytes until EOF
-//	for {
-//		j, err := file.Read(a)
-//		if errors.Is(err, io.EOF) && j == 0 {
-//			break
-//		}
-//		fmt.Print(string(a[:j]))
-//	}
-//}
+func createAndWrite(note string) {
+	// Create or trunkate file
+	file, err := os.Create("file.md")
+	if err != nil {
+		fmt.Print("Couldn't create the initial file", err)
+	}
+	// Create buffer to read/write the file
+	var a = make([]byte, 10)
+	var b []byte
+	b = []byte(note)
+	// Write the phrase to the file
+	file.Write(b)
+	// Moves the cursor to the start of the file
+	_, _ = file.Seek(0, 0)
+	// Loop that reads the file 10 bytes by 10 bytes until EOF
+	for {
+		j, err := file.Read(a)
+		if errors.Is(err, io.EOF) && j == 0 {
+			break
+		}
+		fmt.Print(string(a[:j]))
+	}
+}
 
 func readFile(file *os.File) {
 	// Create a new reader
@@ -45,12 +47,6 @@ func readFile(file *os.File) {
 			break
 		}
 	}
-}
-
-func writeFile(file *os.File, typeOfNote NoteType, note string) {
-	writer := bufio.NewWriter(file)
-	defer writer.Flush()
-	fmt.Fprintf(writer, "\n %v \n----------", note)
 }
 
 func openFile(fileName string) (*os.File, error) {

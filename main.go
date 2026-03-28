@@ -5,13 +5,7 @@ import (
 	"os"
 
 	"github.com/AgustinPagotto/squid/internal/cli"
-)
-
-type NoteType int
-
-const (
-	NoteTypeNote = iota
-	NoteTypeChecklist
+	"github.com/AgustinPagotto/squid/internal/notes"
 )
 
 func main() {
@@ -24,7 +18,7 @@ func main() {
 		cli.PrintHelp()
 		return
 	case "notes":
-		fmt.Println("notes")
+		notes.Handle(os.Args[2:])
 		return
 	case "context":
 		fmt.Println("context")
