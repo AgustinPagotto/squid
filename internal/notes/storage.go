@@ -1,13 +1,46 @@
 package notes
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
 )
 
 const notesFile = "notes.json"
+
+func findNote(id int) (*Note, error) {
+	notes, err := load()
+	if err != nil {
+		return &Note{}, err
+	}
+	for i := range notes {
+		if notes[i].ID == id {
+			return &notes[i], nil
+		}
+	}
+	return &Note{}, fmt.Errorf("note with id %d not found", id)
+}
+func saveEdit(note Note) error {
+	notes, err := load()
+	if err != nil {
+		return err
+	}
+	for i := range notes {
+		if notes[i].ID == note.ID {
+			notes[i] = note
+		}
+	}
+	jsonNotes, err := json.MarshalIndent(notes, "", " ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(jsonNotes))
+	err = os.WriteFile(notesFile, jsonNotes, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func save(note Note) error {
 	notes, err := load()

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,6 +37,22 @@ func Handle(args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	case "edit":
+		if len(args) < 2 {
+			fmt.Println("please provide a note id to edit")
+			return
+		}
+
+		id, err := strconv.Atoi(args[1])
+		if err != nil {
+			fmt.Println("invalid note id")
+			return
+		}
+
+		err = handleEdit(id)
+		if err != nil {
+			fmt.Println(err)
+		}
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
@@ -52,7 +69,7 @@ func handleAdd() error {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	_, err = tmpFile.WriteString(cli.NoteTemplate)
+	_, err = tmpFile.WriteString(cli.AddNoteTemplate)
 	if err != nil {
 		return err
 	}
@@ -76,6 +93,57 @@ func handleAdd() error {
 	}
 	fmt.Println("Title: ", title, "\nBody: ", body)
 	err = add(title, body)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func handleEdit(id int) error {
+	note, err := findNote(id)
+	if err != nil {
+		return err
+	}
+	editor := os.Getenv("EDITOR")
+	if editor == "" {
+		editor = "nano"
+	}
+	tmpFile, err := os.CreateTemp("", "squid-note-*.txt")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmpFile.Name())
+	writeContent := fmt.Sprintf("%s\n\n%s\n\n%s",
+		note.Title,
+		note.Body,
+		cli.EditNoteTemplate,
+	)
+
+	_, err = tmpFile.WriteString(writeContent)
+	if err != nil {
+		return err
+	}
+	tmpFile.Close()
+
+	cmd := exec.Command(editor, tmpFile.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+	content, err := os.ReadFile(tmpFile.Name())
+	if err != nil {
+		return err
+	}
+	title, body, err := parseNote(string(content))
+	if err != nil {
+		return err
+	}
+	note.Title = title
+	note.Body = body
+	err = saveEdit(*note)
 	if err != nil {
 		return err
 	}

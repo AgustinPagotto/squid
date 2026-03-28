@@ -2,11 +2,19 @@ package cli
 
 import "fmt"
 
-const NoteTemplate = `
+const AddNoteTemplate = `
 
 # First line will be your note title
 # The following lines will be for the actual note. Lines starting
 # with '#' will be ignored, and an empty message aborts.
+#
+# Squid Notes
+`
+
+const EditNoteTemplate = `
+
+# Edit your note as needed, remember first line is the title
+# Lines starting with '#' will be ignored, and an empty message aborts.
 #
 # Squid Notes
 `
