@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/AgustinPagotto/squid/internal/cli"
+	validator "github.com/AgustinPagotto/squid/internal/validator"
 )
 
 type NoteType int
@@ -38,33 +39,29 @@ func Handle(args []string) {
 			fmt.Println(err)
 		}
 	case "edit":
-		if len(args) < 2 {
-			fmt.Println("please provide a note id to edit")
+		if !validator.HasArgAmount(args, 2) {
+			fmt.Println("please provide a note id")
 			return
 		}
-
-		id, err := strconv.Atoi(args[1])
+		id, err := parseID(args[1])
 		if err != nil {
-			fmt.Println("invalid note id")
+			fmt.Println(err)
 			return
 		}
-
 		err = handleEdit(id)
 		if err != nil {
 			fmt.Println(err)
 		}
 	case "del":
-		if len(args) < 2 {
+		if !validator.HasArgAmount(args, 2) {
 			fmt.Println("please provide a note id to delete")
 			return
 		}
-
-		id, err := strconv.Atoi(args[1])
+		id, err := parseID(args[1])
 		if err != nil {
-			fmt.Println("invalid note id")
+			fmt.Println(err)
 			return
 		}
-
 		err = handleDelete(id)
 		if err != nil {
 			fmt.Println(err)
@@ -75,10 +72,7 @@ func Handle(args []string) {
 }
 
 func handleAdd() error {
-	editor := os.Getenv("EDITOR")
-	if editor == "" {
-		editor = "nano"
-	}
+	editor := getEditor()
 	tmpFile, err := os.CreateTemp("", "squid-note-*.txt")
 	if err != nil {
 		return err
@@ -108,7 +102,8 @@ func handleAdd() error {
 		return err
 	}
 	fmt.Println("Title: ", title, "\nBody: ", body)
-	err = add(title, body)
+	note := Note{Title: title, Body: body, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	err = save(note)
 	if err != nil {
 		return err
 	}
@@ -120,10 +115,7 @@ func handleEdit(id int) error {
 	if err != nil {
 		return err
 	}
-	editor := os.Getenv("EDITOR")
-	if editor == "" {
-		editor = "nano"
-	}
+	editor := getEditor()
 	tmpFile, err := os.CreateTemp("", "squid-note-*.txt")
 	if err != nil {
 		return err
@@ -171,30 +163,26 @@ func handleDelete(id int) error {
 	if err != nil {
 		return err
 	}
-
 	fmt.Printf("Are you sure you want to delete note: %q? [Y/n]: ", note.Title)
-
 	var input string
 	fmt.Scanln(&input)
-
 	input = strings.TrimSpace(strings.ToLower(input))
-
 	if input != "" && input != "y" && input != "yes" {
 		fmt.Println("delete aborted")
 		return nil
 	}
-
 	if err := delete(id); err != nil {
 		return err
 	}
-
 	fmt.Println("note deleted")
 	return nil
 }
 
-func add(title, body string) error {
-	note := Note{Title: title, Body: body, CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	return save(note)
+func getEditor() string {
+	if editor := os.Getenv("EDITOR"); editor != "" {
+		return editor
+	}
+	return "nano"
 }
 
 func parseNote(input string) (string, string, error) {
@@ -203,24 +191,28 @@ func parseNote(input string) (string, string, error) {
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-
 		if line == "" && len(result) == 0 {
 			continue
 		}
-
 		if line == "" {
 			result = append(result, "")
 			continue
 		}
-
 		if strings.HasPrefix(line, "#") {
 			continue
 		}
-
 		result = append(result, line)
 	}
 	if len(result) < 2 {
 		return "", "", fmt.Errorf("no sufficient content was written")
 	}
 	return strings.TrimSpace(result[0]), strings.TrimSpace(strings.Join(result[1:], "\n")), nil
+}
+
+func parseID(s string) (int, error) {
+	id, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("invalid note id")
+	}
+	return id, nil
 }
