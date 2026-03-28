@@ -75,16 +75,16 @@ func handleAdd() error {
 		return err
 	}
 	fmt.Println("Title: ", title, "\nBody: ", body)
-	err = Add(title, body)
+	err = add(title, body)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func Add(title, body string) error {
+func add(title, body string) error {
 	note := Note{Title: title, Body: body, CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	return saveJson(note)
+	return save(note)
 }
 
 func parseNote(input string) (string, string, error) {
