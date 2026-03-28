@@ -126,7 +126,6 @@ func handleEdit(id int) error {
 		note.Body,
 		cli.EditNoteTemplate,
 	)
-
 	_, err = tmpFile.WriteString(writeContent)
 	if err != nil {
 		return err
@@ -171,7 +170,7 @@ func handleDelete(id int) error {
 		fmt.Println("delete aborted")
 		return nil
 	}
-	if err := delete(id); err != nil {
+	if err := delNote(id); err != nil {
 		return err
 	}
 	fmt.Println("note deleted")

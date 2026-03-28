@@ -19,8 +19,9 @@ func findNote(id int) (*Note, error) {
 			return &notes[i], nil
 		}
 	}
-	return &Note{}, fmt.Errorf("note with id %d not found", id)
+	return nil, fmt.Errorf("note with id %d not found", id)
 }
+
 func saveEdit(note Note) error {
 	notes, err := load()
 	if err != nil {
@@ -35,7 +36,6 @@ func saveEdit(note Note) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(jsonNotes))
 	err = os.WriteFile(notesFile, jsonNotes, 0644)
 	if err != nil {
 		return err
@@ -54,7 +54,6 @@ func save(note Note) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(jsonNotes))
 	err = os.WriteFile(notesFile, jsonNotes, 0644)
 	if err != nil {
 		return err
@@ -62,7 +61,7 @@ func save(note Note) error {
 	return nil
 }
 
-func delete(id int) error {
+func delNote(id int) error {
 	notes, err := load()
 	if err != nil {
 		return err
@@ -77,7 +76,6 @@ func delete(id int) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(jsonNotes))
 	err = os.WriteFile(notesFile, jsonNotes, 0644)
 	if err != nil {
 		return err
@@ -106,12 +104,4 @@ func nextID(notes []Note) int {
 		}
 	}
 	return maxID + 1
-}
-
-func openFile(fileName string) (*os.File, error) {
-	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0666)
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
 }
