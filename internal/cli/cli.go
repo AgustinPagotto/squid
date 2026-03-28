@@ -2,6 +2,15 @@ package cli
 
 import "fmt"
 
+const NoteTemplate = `
+
+# First line will be your note title
+# The following lines will be for the actual note. Lines starting
+# with '#' will be ignored, and an empty message aborts.
+#
+# Squid Notes
+`
+
 func PrintHelp() {
 	fmt.Print(`Squid — project-aware developer context CLI
 Usage:

@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
+
+	"github.com/AgustinPagotto/squid/internal/cli"
 )
 
 type NoteType int
@@ -29,7 +32,10 @@ func Handle(args []string) {
 	}
 	switch args[0] {
 	case "add":
-		handleAdd()
+		err := handleAdd()
+		if err != nil {
+			fmt.Println(err)
+		}
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
@@ -45,29 +51,66 @@ func handleAdd() error {
 		return err
 	}
 	defer os.Remove(tmpFile.Name())
+
+	_, err = tmpFile.WriteString(cli.NoteTemplate)
+	if err != nil {
+		return err
+	}
+	tmpFile.Close()
+
 	cmd := exec.Command(editor, tmpFile.Name())
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
-		fmt.Println("error opening editor:", err)
 		return err
 	}
 	content, err := os.ReadFile(tmpFile.Name())
 	if err != nil {
-		fmt.Println("error reading file:", err)
 		return err
 	}
-	if len(content) == 0 {
-		fmt.Println("no content was written: ")
+	title, body, err := parseNote(string(content))
+	if err != nil {
 		return err
 	}
-	fmt.Println(string(content))
+	fmt.Println("Title: ", title, "\nBody: ", body)
+	err = Add(title, body)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func Add(content string) error {
-	note := Note{Title: "example", Body: content}
-	return save(note)
+func Add(title, body string) error {
+	note := Note{Title: title, Body: body, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	return saveJson(note)
+}
+
+func parseNote(input string) (string, string, error) {
+	lines := strings.Split(input, "\n")
+	var result []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		if line == "" && len(result) == 0 {
+			continue
+		}
+
+		if line == "" {
+			result = append(result, "")
+			continue
+		}
+
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		result = append(result, line)
+	}
+	if len(result) < 2 {
+		return "", "", fmt.Errorf("no sufficient content was written")
+	}
+	return strings.TrimSpace(result[0]), strings.TrimSpace(strings.Join(result[1:], "\n")), nil
 }
