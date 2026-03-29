@@ -150,14 +150,15 @@ func handleList() error {
 	if len(notes) == 0 {
 		return fmt.Errorf("No notes found")
 	}
-	fmt.Printf("ID  %-25s  %s\n", "Title", "Preview")
-	fmt.Println("--  -------------------------  -------------------------")
-	for _, n := range notes {
-		title := truncate(n.Title, 25)
-		preview := truncate(n.Body, 25)
 
-		fmt.Printf("%-3d %-25s  %s\n", n.ID, title, preview)
+	for _, n := range notes {
+		title := truncate(n.Title, 50)
+		preview := truncate(strings.ReplaceAll(n.Body, "\n", " "), 80)
+		fmt.Printf("%2d  %s\n", n.ID, title)
+		fmt.Printf("    %s\n\n", preview)
 	}
+
+	fmt.Println()
 	return nil
 }
 
