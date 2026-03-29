@@ -2,7 +2,7 @@
  {
   "ID": 0,
   "Title": "Another title?",
-  "Body": "yes of course",
+  "Body": "yes of course haha",
   "CreatedAt": "2026-03-27T23:28:35.567827-03:00",
   "UpdatedAt": "2026-03-27T23:28:35.567827-03:00"
  },
@@ -19,5 +19,12 @@
   "Body": "is this the body really?",
   "CreatedAt": "2026-03-28T15:46:26.045991-03:00",
   "UpdatedAt": "2026-03-28T15:46:26.045991-03:00"
+ },
+ {
+  "ID": 4,
+  "Title": "this is the name of the title",
+  "Body": "this is the body\nbody body\nbody",
+  "CreatedAt": "2026-03-28T21:02:54.852339-03:00",
+  "UpdatedAt": "2026-03-28T21:02:54.852339-03:00"
  }
 ]

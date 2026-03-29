@@ -72,42 +72,16 @@ func Handle(args []string) {
 }
 
 func handleAdd() error {
-	editor := getEditor()
-	tmpFile, err := os.CreateTemp("", "squid-note-*.txt")
+	content, err := openInEditor(cli.AddNoteTemplate)
 	if err != nil {
 		return err
 	}
-	defer os.Remove(tmpFile.Name())
-
-	_, err = tmpFile.WriteString(cli.AddNoteTemplate)
+	title, body, err := parseNote(content)
 	if err != nil {
 		return err
 	}
-	tmpFile.Close()
-
-	cmd := exec.Command(editor, tmpFile.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if err != nil {
-		return err
-	}
-	content, err := os.ReadFile(tmpFile.Name())
-	if err != nil {
-		return err
-	}
-	title, body, err := parseNote(string(content))
-	if err != nil {
-		return err
-	}
-	fmt.Println("Title: ", title, "\nBody: ", body)
 	note := Note{Title: title, Body: body, CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	err = save(note)
-	if err != nil {
-		return err
-	}
-	return nil
+	return save(note)
 }
 
 func handleEdit(id int) error {
@@ -115,46 +89,45 @@ func handleEdit(id int) error {
 	if err != nil {
 		return err
 	}
-	editor := getEditor()
-	tmpFile, err := os.CreateTemp("", "squid-note-*.txt")
+	initial := fmt.Sprintf("%s\n\n%s\n\n%s", note.Title, note.Body, cli.EditNoteTemplate)
+	content, err := openInEditor(initial)
 	if err != nil {
 		return err
 	}
-	defer os.Remove(tmpFile.Name())
-	writeContent := fmt.Sprintf("%s\n\n%s\n\n%s",
-		note.Title,
-		note.Body,
-		cli.EditNoteTemplate,
-	)
-	_, err = tmpFile.WriteString(writeContent)
-	if err != nil {
-		return err
-	}
-	tmpFile.Close()
-
-	cmd := exec.Command(editor, tmpFile.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if err != nil {
-		return err
-	}
-	content, err := os.ReadFile(tmpFile.Name())
-	if err != nil {
-		return err
-	}
-	title, body, err := parseNote(string(content))
+	title, body, err := parseNote(content)
 	if err != nil {
 		return err
 	}
 	note.Title = title
 	note.Body = body
-	err = saveEdit(*note)
+	return saveEdit(*note)
+}
+
+func openInEditor(initial string) (string, error) {
+	tmpFile, err := os.CreateTemp("", "squid-note-*.txt")
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	defer os.Remove(tmpFile.Name())
+
+	if _, err = tmpFile.WriteString(initial); err != nil {
+		return "", err
+	}
+	tmpFile.Close()
+
+	cmd := exec.Command(getEditor(), tmpFile.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err = cmd.Run(); err != nil {
+		return "", err
+	}
+
+	content, err := os.ReadFile(tmpFile.Name())
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
 }
 
 func handleDelete(id int) error {

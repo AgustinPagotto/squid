@@ -32,15 +32,7 @@ func saveEdit(note Note) error {
 			notes[i] = note
 		}
 	}
-	jsonNotes, err := json.MarshalIndent(notes, "", " ")
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(notesFile, jsonNotes, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return persistNotes(notes)
 }
 
 func save(note Note) error {
@@ -50,15 +42,7 @@ func save(note Note) error {
 	}
 	note.ID = nextID(notes)
 	notes = append(notes, note)
-	jsonNotes, err := json.MarshalIndent(notes, "", " ")
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(notesFile, jsonNotes, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return persistNotes(notes)
 }
 
 func delNote(id int) error {
@@ -72,15 +56,15 @@ func delNote(id int) error {
 			break
 		}
 	}
+	return persistNotes(notes)
+}
+
+func persistNotes(notes []Note) error {
 	jsonNotes, err := json.MarshalIndent(notes, "", " ")
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(notesFile, jsonNotes, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return os.WriteFile(notesFile, jsonNotes, 0644)
 }
 
 func load() ([]Note, error) {
