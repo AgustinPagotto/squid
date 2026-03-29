@@ -12,7 +12,7 @@ const notesFile = "notes.json"
 func findNote(id int) (*Note, error) {
 	notes, err := load()
 	if err != nil {
-		return &Note{}, err
+		return nil, err
 	}
 	for i := range notes {
 		if notes[i].ID == id {
@@ -30,6 +30,7 @@ func saveEdit(note Note) error {
 	for i := range notes {
 		if notes[i].ID == note.ID {
 			notes[i] = note
+			break
 		}
 	}
 	return persistNotes(notes)

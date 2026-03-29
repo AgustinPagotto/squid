@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/AgustinPagotto/squid/internal/cli"
-	validator "github.com/AgustinPagotto/squid/internal/validator"
+	"github.com/AgustinPagotto/squid/internal/validator"
 )
 
 //type NoteType int
@@ -39,11 +39,7 @@ func Handle(args []string) {
 			fmt.Println(err)
 		}
 	case "edit", "e":
-		if !validator.HasArgAmount(args, 2) {
-			fmt.Println("please provide a note id")
-			return
-		}
-		id, err := parseID(args[1])
+		id, err := parseID(args, 1)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -53,11 +49,7 @@ func Handle(args []string) {
 			fmt.Println(err)
 		}
 	case "del", "d":
-		if !validator.HasArgAmount(args, 2) {
-			fmt.Println("please provide a note id to delete")
-			return
-		}
-		id, err := parseID(args[1])
+		id, err := parseID(args, 1)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -72,11 +64,7 @@ func Handle(args []string) {
 			fmt.Println(err)
 		}
 	case "show", "s":
-		if !validator.HasArgAmount(args, 2) {
-			fmt.Println("please provide a note id")
-			return
-		}
-		id, err := parseID(args[1])
+		id, err := parseID(args, 1)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -119,6 +107,7 @@ func handleEdit(id int) error {
 	}
 	note.Title = title
 	note.Body = body
+	note.UpdatedAt = time.Now()
 	return saveEdit(*note)
 }
 
@@ -235,8 +224,12 @@ func parseNote(input string) (string, string, error) {
 	return strings.TrimSpace(result[0]), strings.TrimSpace(strings.Join(result[1:], "\n")), nil
 }
 
-func parseID(s string) (int, error) {
-	id, err := strconv.Atoi(s)
+func parseID(args []string, loc int) (int, error) {
+	if !validator.HasArgAmount(args, loc+1) {
+		fmt.Println("please provide a note id")
+		return 0, fmt.Errorf("invalid amount of arguments")
+	}
+	id, err := strconv.Atoi(args[loc])
 	if err != nil {
 		return 0, fmt.Errorf("invalid note id")
 	}
