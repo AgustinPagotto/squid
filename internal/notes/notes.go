@@ -33,12 +33,12 @@ func Handle(args []string) {
 		return
 	}
 	switch args[0] {
-	case "add":
+	case "add", "a":
 		err := handleAdd()
 		if err != nil {
 			fmt.Println(err)
 		}
-	case "edit":
+	case "edit", "e":
 		if !validator.HasArgAmount(args, 2) {
 			fmt.Println("please provide a note id")
 			return
@@ -52,7 +52,7 @@ func Handle(args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
-	case "del":
+	case "del", "d":
 		if !validator.HasArgAmount(args, 2) {
 			fmt.Println("please provide a note id to delete")
 			return
@@ -66,12 +66,12 @@ func Handle(args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
-	case "list":
+	case "list", "l":
 		err := handleList()
 		if err != nil {
 			fmt.Println(err)
 		}
-	case "show":
+	case "show", "s":
 		if !validator.HasArgAmount(args, 2) {
 			fmt.Println("please provide a note id")
 			return
