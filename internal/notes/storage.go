@@ -10,7 +10,7 @@ import (
 const notesFile = "notes.json"
 
 func findNote(id int) (*Note, error) {
-	notes, err := load()
+	notes, err := loadNotes()
 	if err != nil {
 		return nil, err
 	}
@@ -22,8 +22,8 @@ func findNote(id int) (*Note, error) {
 	return nil, fmt.Errorf("note with id %d not found", id)
 }
 
-func saveEdit(note Note) error {
-	notes, err := load()
+func editNote(note Note) error {
+	notes, err := loadNotes()
 	if err != nil {
 		return err
 	}
@@ -36,8 +36,8 @@ func saveEdit(note Note) error {
 	return persistNotes(notes)
 }
 
-func save(note Note) error {
-	notes, err := load()
+func addNote(note Note) error {
+	notes, err := loadNotes()
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func save(note Note) error {
 }
 
 func delNote(id int) error {
-	notes, err := load()
+	notes, err := loadNotes()
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func persistNotes(notes []Note) error {
 	return os.WriteFile(notesFile, jsonNotes, 0644)
 }
 
-func load() ([]Note, error) {
+func loadNotes() ([]Note, error) {
 	file, err := os.ReadFile(notesFile)
 	if err != nil {
 		if os.IsNotExist(err) {

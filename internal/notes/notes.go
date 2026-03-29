@@ -37,7 +37,9 @@ func Handle(args []string) {
 		err := handleAdd()
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
+		fmt.Println("note added successfully")
 	case "edit", "e":
 		id, err := parseID(args, 1)
 		if err != nil {
@@ -57,11 +59,14 @@ func Handle(args []string) {
 		err = handleDelete(id)
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
+		fmt.Println("note deleted")
 	case "list", "l":
 		err := handleList()
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
 	case "show", "s":
 		id, err := parseID(args, 1)
@@ -72,6 +77,7 @@ func Handle(args []string) {
 		err = handleShow(id)
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
 	default:
 		fmt.Println("unknown subcommand:", args[0])
@@ -88,7 +94,7 @@ func handleAdd() error {
 		return err
 	}
 	note := Note{Title: title, Body: body, CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	return save(note)
+	return addNote(note)
 }
 
 func handleEdit(id int) error {
@@ -108,7 +114,7 @@ func handleEdit(id int) error {
 	note.Title = title
 	note.Body = body
 	note.UpdatedAt = time.Now()
-	return saveEdit(*note)
+	return editNote(*note)
 }
 
 func handleDelete(id int) error {
@@ -127,12 +133,11 @@ func handleDelete(id int) error {
 	if err := delNote(id); err != nil {
 		return err
 	}
-	fmt.Println("note deleted")
 	return nil
 }
 
 func handleList() error {
-	notes, err := load()
+	notes, err := loadNotes()
 	if err != nil {
 		return err
 	}
