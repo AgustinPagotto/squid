@@ -7,7 +7,7 @@ import (
 	"slices"
 )
 
-const notesFile = "notes.json"
+var notesFile = "notes.json"
 
 func findNote(id int) (*Note, error) {
 	notes, err := loadNotes()
@@ -82,6 +82,9 @@ func loadNotes() ([]Note, error) {
 }
 
 func nextID(notes []Note) int {
+	if len(notes) == 0 {
+		return 0
+	}
 	maxID := 0
 	for _, note := range notes {
 		if note.ID > maxID {
