@@ -18,7 +18,8 @@ func main() {
 		cli.PrintHelp()
 		return
 	case "notes":
-		notes.Handle(os.Args[2:])
+		ns := &notes.NoteStorage{Path: "notes.json"}
+		notes.Handle(os.Args[2:], ns)
 		return
 	case "context":
 		fmt.Println("context")

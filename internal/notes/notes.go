@@ -27,14 +27,14 @@ type Note struct {
 	UpdatedAt time.Time
 }
 
-func Handle(args []string) {
+func Handle(args []string, ns NoteStorageInterface) {
 	if len(args) == 0 {
 		fmt.Println("expected subcommand (add, list, etc.)")
 		return
 	}
 	switch args[0] {
 	case "add", "a":
-		err := handleAdd()
+		err := handleAdd(ns)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -46,7 +46,7 @@ func Handle(args []string) {
 			fmt.Println(err)
 			return
 		}
-		err = handleEdit(id)
+		err = handleEdit(ns, id)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -56,14 +56,14 @@ func Handle(args []string) {
 			fmt.Println(err)
 			return
 		}
-		err = handleDelete(id)
+		err = handleDelete(ns, id)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		fmt.Println("note deleted")
 	case "list", "l":
-		err := handleList()
+		err := handleList(ns)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -74,7 +74,7 @@ func Handle(args []string) {
 			fmt.Println(err)
 			return
 		}
-		err = handleShow(id)
+		err = handleShow(ns, id)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -84,7 +84,7 @@ func Handle(args []string) {
 	}
 }
 
-func handleAdd() error {
+func handleAdd(ns NoteStorageInterface) error {
 	content, err := openInEditor(cli.AddNoteTemplate)
 	if err != nil {
 		return err
@@ -94,11 +94,11 @@ func handleAdd() error {
 		return err
 	}
 	note := Note{Title: title, Body: body, CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	return addNote(note)
+	return ns.addNote(note)
 }
 
-func handleEdit(id int) error {
-	note, err := findNote(id)
+func handleEdit(ns NoteStorageInterface, id int) error {
+	note, err := ns.findNote(id)
 	if err != nil {
 		return err
 	}
@@ -114,11 +114,11 @@ func handleEdit(id int) error {
 	note.Title = title
 	note.Body = body
 	note.UpdatedAt = time.Now()
-	return editNote(*note)
+	return ns.editNote(*note)
 }
 
-func handleDelete(id int) error {
-	note, err := findNote(id)
+func handleDelete(ns NoteStorageInterface, id int) error {
+	note, err := ns.findNote(id)
 	if err != nil {
 		return err
 	}
@@ -130,14 +130,11 @@ func handleDelete(id int) error {
 		fmt.Println("delete aborted")
 		return nil
 	}
-	if err := delNote(id); err != nil {
-		return err
-	}
-	return nil
+	return ns.delNote(id)
 }
 
-func handleList() error {
-	notes, err := loadNotes()
+func handleList(ns NoteStorageInterface) error {
+	notes, err := ns.loadNotes()
 	if err != nil {
 		return err
 	}
@@ -156,8 +153,8 @@ func handleList() error {
 	return nil
 }
 
-func handleShow(id int) error {
-	note, err := findNote(id)
+func handleShow(ns NoteStorageInterface, id int) error {
+	note, err := ns.findNote(id)
 	if err != nil {
 		return err
 	}

@@ -7,10 +7,20 @@ import (
 	"slices"
 )
 
-var notesFile = "notes.json"
+type NoteStorageInterface interface {
+	findNote(id int) (*Note, error)
+	editNote(note Note) error
+	addNote(note Note) error
+	delNote(id int) error
+	loadNotes() ([]Note, error)
+}
 
-func findNote(id int) (*Note, error) {
-	notes, err := loadNotes()
+type NoteStorage struct {
+	Path string
+}
+
+func (ns *NoteStorage) findNote(id int) (*Note, error) {
+	notes, err := ns.loadNotes()
 	if err != nil {
 		return nil, err
 	}
@@ -22,8 +32,8 @@ func findNote(id int) (*Note, error) {
 	return nil, fmt.Errorf("note with id %d not found", id)
 }
 
-func editNote(note Note) error {
-	notes, err := loadNotes()
+func (ns *NoteStorage) editNote(note Note) error {
+	notes, err := ns.loadNotes()
 	if err != nil {
 		return err
 	}
@@ -33,21 +43,21 @@ func editNote(note Note) error {
 			break
 		}
 	}
-	return persistNotes(notes)
+	return ns.persistNotes(notes)
 }
 
-func addNote(note Note) error {
-	notes, err := loadNotes()
+func (ns *NoteStorage) addNote(note Note) error {
+	notes, err := ns.loadNotes()
 	if err != nil {
 		return err
 	}
 	note.ID = nextID(notes)
 	notes = append(notes, note)
-	return persistNotes(notes)
+	return ns.persistNotes(notes)
 }
 
-func delNote(id int) error {
-	notes, err := loadNotes()
+func (ns *NoteStorage) delNote(id int) error {
+	notes, err := ns.loadNotes()
 	if err != nil {
 		return err
 	}
@@ -57,19 +67,19 @@ func delNote(id int) error {
 			break
 		}
 	}
-	return persistNotes(notes)
+	return ns.persistNotes(notes)
 }
 
-func persistNotes(notes []Note) error {
+func (ns *NoteStorage) persistNotes(notes []Note) error {
 	jsonNotes, err := json.MarshalIndent(notes, "", " ")
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(notesFile, jsonNotes, 0644)
+	return os.WriteFile(ns.Path, jsonNotes, 0644)
 }
 
-func loadNotes() ([]Note, error) {
-	file, err := os.ReadFile(notesFile)
+func (ns *NoteStorage) loadNotes() ([]Note, error) {
+	file, err := os.ReadFile(ns.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []Note{}, nil
