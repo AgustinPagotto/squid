@@ -63,11 +63,10 @@ func (ns *NoteStorage) delNote(id int) error {
 	}
 	for i := range notes {
 		if notes[i].ID == id {
-			notes = slices.Delete(notes, i, i+1)
-			break
+			return ns.persistNotes(slices.Delete(notes, i, i+1))
 		}
 	}
-	return ns.persistNotes(notes)
+	return fmt.Errorf("note with id %d not found", id)
 }
 
 func (ns *NoteStorage) persistNotes(notes []Note) error {

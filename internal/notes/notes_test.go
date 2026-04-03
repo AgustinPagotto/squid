@@ -1,6 +1,89 @@
 package notes
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
+
+func newTestStorageWithNotes(t *testing.T, notes ...Note) *NoteStorage {
+	t.Helper()
+	newNoteStorage := &NoteStorage{Path: t.TempDir() + "/notes.json"}
+	for _, note := range notes {
+		newNoteStorage.addNote(note)
+	}
+	return newNoteStorage
+}
+
+func TestHandleList(t *testing.T) {
+	tests := []struct {
+		name    string
+		notes   []Note
+		wantErr bool
+	}{
+		{"lists notes", []Note{{ID: 1, Title: "A", Body: "B"}}, false},
+		{"empty storage returns error", []Note{}, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := handleList(newTestStorageWithNotes(t, tt.notes...))
+			if (err != nil) != tt.wantErr {
+				t.Errorf("handleList() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestHandleShow(t *testing.T) {
+	ns := newTestStorageWithNotes(t, Note{Title: "Hello", Body: "World", CreatedAt: time.Now(), UpdatedAt: time.Now()})
+
+	tests := []struct {
+		name    string
+		id      int
+		wantErr bool
+	}{
+		{"existing note", 0, false},
+		{"missing note", 99, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := handleShow(ns, tt.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("handleShow(%d) error = %v, wantErr %v", tt.id, err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestHandleDelete(t *testing.T) {
+	tests := []struct {
+		name       string
+		id         int
+		wantErr    bool
+		wantRemain int
+	}{
+		{"deletes existing note", 0, false, 1},
+		{"missing note returns error", 99, true, 2},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ns := newTestStorageWithNotes(t,
+				Note{Title: "To delete", Body: "body", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+				Note{Title: "Not deleted", Body: "body", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+			)
+			err := ns.delNote(tt.id)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("delNote(%d) error = %v, wantErr %v", tt.id, err, tt.wantErr)
+			}
+			notes, _ := ns.loadNotes()
+			if len(notes) != tt.wantRemain {
+				t.Errorf("remaining notes = %d, want %d", len(notes), tt.wantRemain)
+			}
+		})
+	}
+}
 
 func TestParseNote(t *testing.T) {
 	tests := []struct {

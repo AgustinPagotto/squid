@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+func newTestStore(t *testing.T) *NoteStorage {
+	t.Helper()
+	return &NoteStorage{Path: t.TempDir() + "/notes.json"}
+}
+
 func TestNextID(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -25,20 +30,17 @@ func TestNextID(t *testing.T) {
 	}
 }
 
-func TestSaveAndLoad(t *testing.T) {
-	dir := t.TempDir()
-	original := notesFile
-	notesFile = dir + "/notes.json"
-	defer func() { notesFile = original }()
-
+func TestAddAndLoad(t *testing.T) {
+	ns := newTestStore(t)
 	note := Note{Title: "Test", Body: "Body", CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	if err := addNote(note); err != nil {
+
+	if err := ns.addNote(note); err != nil {
 		t.Fatalf("addNote() error = %v", err)
 	}
 
-	notes, err := loadNotes()
+	notes, err := ns.loadNotes()
 	if err != nil {
-		t.Fatalf("load() error = %v", err)
+		t.Fatalf("loadNotes() error = %v", err)
 	}
 	if len(notes) != 1 {
 		t.Fatalf("expected 1 note, got %d", len(notes))
@@ -49,13 +51,11 @@ func TestSaveAndLoad(t *testing.T) {
 }
 
 func TestLoadMissingFile(t *testing.T) {
-	original := notesFile
-	notesFile = t.TempDir() + "/nonexistent.json"
-	defer func() { notesFile = original }()
+	ns := newTestStore(t)
 
-	notes, err := loadNotes()
+	notes, err := ns.loadNotes()
 	if err != nil {
-		t.Fatalf("load() on missing file should return empty slice, got error: %v", err)
+		t.Fatalf("loadNotes() on missing file should return empty slice, got error: %v", err)
 	}
 	if len(notes) != 0 {
 		t.Errorf("expected empty slice, got %d notes", len(notes))
@@ -63,28 +63,27 @@ func TestLoadMissingFile(t *testing.T) {
 }
 
 func TestFindNote(t *testing.T) {
-	dir := t.TempDir()
-	original := notesFile
-	notesFile = dir + "/notes.json"
-	defer func() { notesFile = original }()
-
+	ns := newTestStore(t)
 	n := Note{Title: "Find me", Body: "body", CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	if err := addNote(n); err != nil {
+	if err := ns.addNote(n); err != nil {
 		t.Fatalf("addNote() error = %v", err)
 	}
+
+	notes, _ := ns.loadNotes()
+	savedID := notes[0].ID
 
 	tests := []struct {
 		name    string
 		id      int
 		wantErr bool
 	}{
-		{"existing note", 0, false},
+		{"existing note", savedID, false},
 		{"non-existing note", 99, true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := findNote(tt.id)
+			got, err := ns.findNote(tt.id)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("findNote(%d) error = %v, wantErr %v", tt.id, err, tt.wantErr)
 			}

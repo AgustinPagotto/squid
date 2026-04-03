@@ -228,8 +228,7 @@ func parseNote(input string) (string, string, error) {
 
 func parseID(args []string, loc int) (int, error) {
 	if !validator.HasArgAmount(args, loc+1) {
-		fmt.Println("please provide a note id")
-		return 0, fmt.Errorf("invalid amount of arguments")
+		return 0, fmt.Errorf("please provide a note id")
 	}
 	id, err := strconv.Atoi(args[loc])
 	if err != nil {
