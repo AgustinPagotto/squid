@@ -21,7 +21,7 @@ func TestHandleList(t *testing.T) {
 		wantErr bool
 	}{
 		{"lists notes", []Note{{ID: 1, Title: "A", Body: "B"}}, false},
-		{"empty storage returns error", []Note{}, true},
+		{"empty storage prints message", []Note{}, false},
 	}
 
 	for _, tt := range tests {

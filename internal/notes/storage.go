@@ -40,10 +40,10 @@ func (ns *NoteStorage) editNote(note Note) error {
 	for i := range notes {
 		if notes[i].ID == note.ID {
 			notes[i] = note
-			break
+			return ns.persistNotes(notes)
 		}
 	}
-	return ns.persistNotes(notes)
+	return fmt.Errorf("note with id %d not found", note.ID)
 }
 
 func (ns *NoteStorage) addNote(note Note) error {

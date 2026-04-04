@@ -12,13 +12,6 @@ import (
 	"github.com/AgustinPagotto/squid/internal/validator"
 )
 
-//type NoteType int
-
-//const (
-//	NoteTypeNote = iota
-//	NoteTypeChecklist
-//)
-
 type Note struct {
 	ID        int
 	Title     string
@@ -139,7 +132,8 @@ func handleList(ns NoteStorageInterface) error {
 		return err
 	}
 	if len(notes) == 0 {
-		return fmt.Errorf("No notes found")
+		fmt.Println("no notes yet — run 'squid notes add' to create one")
+		return nil
 	}
 
 	for _, n := range notes {
@@ -222,6 +216,9 @@ func parseNote(input string) (string, string, error) {
 	}
 	if len(result) < 2 {
 		return "", "", fmt.Errorf("no sufficient content was written")
+	}
+	for len(result) > 0 && result[len(result)-1] == "" {
+		result = result[:len(result)-1]
 	}
 	return strings.TrimSpace(result[0]), strings.TrimSpace(strings.Join(result[1:], "\n")), nil
 }
