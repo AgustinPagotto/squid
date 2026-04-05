@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 var ErrRootNotFound = errors.New("no .squid directory found in current directory")
@@ -46,4 +47,25 @@ func checkInitFolderExists() (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func FindRoot() (string, error) {
+	currDir, _ := os.Getwd()
+	for {
+		directories, err := os.ReadDir(currDir)
+		if err != nil {
+			return "", err
+		}
+		for _, dir := range directories {
+			if dir.Name() == ".squid" && dir.IsDir() {
+				return currDir, nil
+			}
+		}
+		parent := filepath.Dir(currDir)
+		if currDir == parent {
+			break
+		}
+		currDir = parent
+	}
+	return "", ErrRootNotFound
 }
