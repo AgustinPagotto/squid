@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/AgustinPagotto/squid/internal/cli"
 	"github.com/AgustinPagotto/squid/internal/config"
@@ -17,19 +18,30 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "init":
+		_, err := config.FindRoot()
+		if !errors.Is(err, config.ErrRootNotFound) {
+			fmt.Println(err)
+			return
+		}
 		if err := config.Init(); err != nil {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println("Init run sucessfuly, .squid folder created")
 	case "-h":
 		cli.PrintHelp()
 		return
 	case "notes":
-		ns := &notes.NoteStorage{Path: "notes.json"}
-		if err := config.CheckRoot(); errors.Is(err, config.ErrRootNotFound) {
-			fmt.Println("squid is not initialized in this directory, run 'squid init'")
+		dir, err := config.FindRoot()
+		if err != nil {
+			if errors.Is(err, config.ErrRootNotFound) {
+				fmt.Println("squid is not initialized, run 'squid init'")
+			} else {
+				fmt.Println(err)
+			}
 			return
 		}
+		ns := &notes.NoteStorage{Path: filepath.Join(dir, "notes.json")}
 		notes.Handle(os.Args[2:], ns)
 		return
 	case "context":

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"slices"
+
+	"github.com/AgustinPagotto/squid/internal/config"
 )
 
 type NoteStorageInterface interface {
@@ -74,7 +76,7 @@ func (ns *NoteStorage) persistNotes(notes []Note) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(ns.Path, jsonNotes, 0644)
+	return os.WriteFile(ns.Path, jsonNotes, config.FilePerm)
 }
 
 func (ns *NoteStorage) loadNotes() ([]Note, error) {

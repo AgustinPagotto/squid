@@ -10,56 +10,29 @@ import (
 var ErrRootNotFound = errors.New("no .squid directory found in current directory")
 var ErrNotEnoughPermissions = errors.New("not enough permissions to read the current directory")
 
+const (
+	DirPerm  os.FileMode = 0755
+	FilePerm os.FileMode = 0644
+)
+
 func Init() error {
-	exists, err := checkInitFolderExists()
-	if err != nil {
-		return err
-	}
-	if exists {
+	dir, err := FindRoot()
+	if err == nil && dir != "" {
 		fmt.Println("squid already initialized in this directory")
 		return nil
 	}
-	return os.Mkdir(".squid", 0755)
-}
-
-func CheckRoot() error {
-	exists, err := checkInitFolderExists()
-	if err != nil {
-		return err
-	}
-	if !exists {
-		return ErrRootNotFound
-	}
-	return nil
-}
-
-func checkInitFolderExists() (bool, error) {
-	c, err := os.ReadDir(".")
-	if err != nil {
-		if os.IsPermission(err) {
-			return false, ErrNotEnoughPermissions
-		}
-		return false, fmt.Errorf("could not read current directory: %w", err)
-	}
-	for _, dir := range c {
-		if dir.Name() == ".squid" && dir.IsDir() {
-			return true, nil
-		}
-	}
-	return false, nil
+	return os.Mkdir(".squid", DirPerm)
 }
 
 func FindRoot() (string, error) {
-	currDir, _ := os.Getwd()
+	currDir, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("could not get current directory: %w", err)
+	}
 	for {
-		directories, err := os.ReadDir(currDir)
-		if err != nil {
-			return "", err
-		}
-		for _, dir := range directories {
-			if dir.Name() == ".squid" && dir.IsDir() {
-				return currDir, nil
-			}
+		info, err := os.Stat(filepath.Join(currDir, ".squid"))
+		if err == nil && info.IsDir() {
+			return filepath.Join(currDir, ".squid"), nil
 		}
 		parent := filepath.Dir(currDir)
 		if currDir == parent {
