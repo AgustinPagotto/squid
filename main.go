@@ -18,9 +18,8 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "init":
-		_, err := config.FindRoot()
-		if !errors.Is(err, config.ErrRootNotFound) {
-			fmt.Println(err)
+		if len(os.Args) > 2 && os.Args[2] == "-h" {
+			cli.PrintInitHelp()
 			return
 		}
 		if err := config.Init(); err != nil {
@@ -44,6 +43,7 @@ func main() {
 		ns := &notes.NoteStorage{Path: filepath.Join(dir, "notes.json")}
 		notes.Handle(os.Args[2:], ns)
 		return
+	case "todo":
 	case "context":
 		fmt.Println("context")
 		return

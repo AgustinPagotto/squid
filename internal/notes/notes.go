@@ -26,6 +26,8 @@ func Handle(args []string, ns NoteStorageInterface) {
 		return
 	}
 	switch args[0] {
+	case "-h":
+		cli.PrintNotesHelp()
 	case "add", "a":
 		err := handleAdd(ns)
 		if err != nil {

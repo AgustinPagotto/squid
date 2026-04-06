@@ -25,17 +25,45 @@ Usage:
   squid <command> [arguments]
 
 Available Commands:
-  notes      Manage project notes and checklists
-  context    Manage project context and settings
+  init       Initialize squid in the current directory
+  notes      Manage project notes
 
 Flags:
-  -h, Show help for squid
-
-Examples:
-  squid notes add "fix auth bug"
-  squid notes list
-  squid context set my-api
+  -h         Show help for squid
 
 Use "squid <command> -h" for more information about a command.
+`)
+}
+
+func PrintInitHelp() {
+	fmt.Print(`Initialize squid in the current directory
+
+Usage:
+  squid init
+
+Creates a .squid/ directory in the current directory. Run this once
+per project. All squid data (notes, todos, context) will be stored there.
+`)
+}
+
+func PrintNotesHelp() {
+	fmt.Print(`Manage project notes
+
+Usage:
+  squid notes <subcommand> [arguments]
+
+Subcommands:
+  add,  a           Create a new note in your editor
+  list, l           List all notes
+  show, s <id>      Show full content of a note
+  edit, e <id>      Edit an existing note in your editor
+  del,  d <id>      Delete a note
+
+Examples:
+  squid notes add
+  squid notes list
+  squid notes show 1
+  squid notes edit 1
+  squid notes del 1
 `)
 }
