@@ -141,34 +141,6 @@ func TestParseNote(t *testing.T) {
 	}
 }
 
-func TestParseID(t *testing.T) {
-	tests := []struct {
-		name    string
-		args    []string
-		loc     int
-		want    int
-		wantErr bool
-	}{
-		{"valid id at loc 1", []string{"edit", "42"}, 1, 42, false},
-		{"valid id at loc 0", []string{"99"}, 0, 99, false},
-		{"not a number", []string{"edit", "abc"}, 1, 0, true},
-		{"args too short", []string{"edit"}, 1, 0, true},
-		{"no args", []string{}, 0, 0, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseID(tt.args, tt.loc)
-			if (err != nil) != tt.wantErr {
-				t.Fatalf("parseID(%v, %d) error = %v, wantErr %v", tt.args, tt.loc, err, tt.wantErr)
-			}
-			if !tt.wantErr && got != tt.want {
-				t.Errorf("parseID(%v, %d) = %d, want %d", tt.args, tt.loc, got, tt.want)
-			}
-		})
-	}
-}
-
 func TestTruncate(t *testing.T) {
 	tests := []struct {
 		name  string

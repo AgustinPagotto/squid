@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"time"
 
@@ -36,7 +35,7 @@ func Handle(args []string, ns NoteStorageInterface) {
 		}
 		fmt.Println("note added successfully")
 	case "edit", "e":
-		id, err := parseID(args, 1)
+		id, err := validator.ValidateAndParseID(args, 1)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -46,7 +45,7 @@ func Handle(args []string, ns NoteStorageInterface) {
 			fmt.Println(err)
 		}
 	case "del", "d":
-		id, err := parseID(args, 1)
+		id, err := validator.ValidateAndParseID(args, 1)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -64,7 +63,7 @@ func Handle(args []string, ns NoteStorageInterface) {
 			return
 		}
 	case "show", "s":
-		id, err := parseID(args, 1)
+		id, err := validator.ValidateAndParseID(args, 1)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -223,17 +222,6 @@ func parseNote(input string) (string, string, error) {
 		result = result[:len(result)-1]
 	}
 	return strings.TrimSpace(result[0]), strings.TrimSpace(strings.Join(result[1:], "\n")), nil
-}
-
-func parseID(args []string, loc int) (int, error) {
-	if !validator.HasArgAmount(args, loc+1) {
-		return 0, fmt.Errorf("please provide a note id")
-	}
-	id, err := strconv.Atoi(args[loc])
-	if err != nil {
-		return 0, fmt.Errorf("invalid note id")
-	}
-	return id, nil
 }
 
 func truncate(s string, max int) string {

@@ -9,6 +9,7 @@ import (
 	"github.com/AgustinPagotto/squid/internal/cli"
 	"github.com/AgustinPagotto/squid/internal/config"
 	"github.com/AgustinPagotto/squid/internal/notes"
+	"github.com/AgustinPagotto/squid/internal/todo"
 )
 
 func main() {
@@ -44,6 +45,18 @@ func main() {
 		notes.Handle(os.Args[2:], ns)
 		return
 	case "todo":
+		dir, err := config.FindRoot()
+		if err != nil {
+			if errors.Is(err, config.ErrRootNotFound) {
+				fmt.Println("squid is not initialized, run 'squid init'")
+			} else {
+				fmt.Println(err)
+			}
+			return
+		}
+		ts := &todo.TodoStorage{Path: filepath.Join(dir, "todos.json")}
+		todo.Handle(os.Args[2:], ts)
+		return
 	case "context":
 		fmt.Println("context")
 		return
