@@ -138,18 +138,28 @@ func handleList(ts TodoStorageInterface) error {
 		return nil
 	}
 
-	pending := 0
-	done := 0
+	var pending, done []Todo
 	for _, t := range todos {
 		if t.IsDone {
-			done++
-			fmt.Printf("  %2d  [✓] %s\n", t.ID, t.Title)
+			done = append(done, t)
 		} else {
-			pending++
-			fmt.Printf("  %2d  [ ] %s\n", t.ID, t.Title)
+			pending = append(pending, t)
 		}
 	}
-	fmt.Printf("\n  %d done · %d pending\n", done, pending)
+
+	fmt.Println()
+	for _, t := range pending {
+		fmt.Printf("  %2d  [ ] %s\n", t.ID, t.Title)
+	}
+
+	if len(done) > 0 {
+		fmt.Println("\n  ── done ──────────────────────────")
+		for _, t := range done {
+			fmt.Printf("  %2d  [✓] %s\n", t.ID, t.Title)
+		}
+	}
+
+	fmt.Printf("\n  %d done · %d pending\n\n", len(done), len(pending))
 	return nil
 }
 
