@@ -24,7 +24,7 @@ func Handle(args []string, ts TodoStorageInterface) {
 	}
 	switch args[0] {
 	case "-h":
-		cli.PrintNotesHelp()
+		cli.PrintTodoHelp()
 	case "add", "a":
 		if !validator.HasArgAmount(args, 2) {
 			fmt.Println("expected a text for the new todo item")
