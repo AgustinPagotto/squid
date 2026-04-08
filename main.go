@@ -9,7 +9,7 @@ import (
 	"github.com/AgustinPagotto/squid/internal/cli"
 	"github.com/AgustinPagotto/squid/internal/config"
 	"github.com/AgustinPagotto/squid/internal/notes"
-	"github.com/AgustinPagotto/squid/internal/todo"
+	"github.com/AgustinPagotto/squid/internal/todos"
 )
 
 func main() {
@@ -54,8 +54,8 @@ func main() {
 			}
 			return
 		}
-		ts := &todo.TodoStorage{Path: filepath.Join(dir, "todos.json")}
-		todo.Handle(os.Args[2:], ts)
+		ts := &todos.TodoStorage{Path: filepath.Join(dir, "todos.json")}
+		todos.Handle(os.Args[2:], ts)
 		return
 	case "context":
 		fmt.Println("context")

@@ -1,7 +1,8 @@
-package todo
+package todos
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -36,12 +37,7 @@ func Handle(args []string, ts TodoStorageInterface) {
 		}
 		fmt.Println("todo added successfully")
 	case "toggle", "t":
-		id, err := validator.ValidateAndParseID(args, 1)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		err = handleToggle(ts, id)
+		err := handleToggle(ts)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -74,6 +70,12 @@ func Handle(args []string, ts TodoStorageInterface) {
 			fmt.Println(err)
 			return
 		}
+	case "clear", "c":
+		err := handleClear(ts)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
@@ -87,8 +89,23 @@ func handleAdd(args []string, ts TodoStorageInterface) error {
 	return ts.addTodo(todo)
 }
 
-func handleToggle(ts TodoStorageInterface, id int) error {
-	todo, err := ts.findTodo(id)
+func handleToggle(ts TodoStorageInterface) error {
+	todos, err := ts.loadTodos()
+	for _, t := range todos {
+		if t.IsDone {
+			fmt.Printf("  %2d  [✓] %s\n", t.ID, t.Title)
+		} else {
+			fmt.Printf("  %2d  [ ] %s\n", t.ID, t.Title)
+		}
+	}
+	fmt.Print("\nToggle todo (id): ")
+	var input string
+	fmt.Scanln(&input)
+	parsedId, err := strconv.Atoi(strings.TrimSpace(input))
+	if err != nil {
+		return fmt.Errorf("invalid id")
+	}
+	todo, err := ts.findTodo(parsedId)
 	if err != nil {
 		return err
 	}
@@ -106,8 +123,7 @@ func handleDelete(ts TodoStorageInterface, id int) error {
 	fmt.Scanln(&input)
 	input = strings.TrimSpace(strings.ToLower(input))
 	if input != "" && input != "y" && input != "yes" {
-		fmt.Println("delete aborted")
-		return nil
+		return fmt.Errorf("delete aborted")
 	}
 	return ts.delTodo(id)
 }
@@ -150,4 +166,15 @@ func handleShow(ts TodoStorageInterface, id int) error {
 	fmt.Printf("Status:  %s\n", status)
 	fmt.Printf("Created: %s\n", todo.CreatedAt.Format("2006-01-02"))
 	return nil
+}
+
+func handleClear(ts TodoStorageInterface) error {
+	fmt.Print("This will delete all of the done todos [Y/n]: ")
+	var input string
+	fmt.Scanln(&input)
+	input = strings.TrimSpace(strings.ToLower(input))
+	if input != "" && input != "y" && input != "yes" {
+		return fmt.Errorf("clear aborted")
+	}
+	return ts.clearTodos()
 }

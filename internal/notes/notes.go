@@ -121,8 +121,7 @@ func handleDelete(ns NoteStorageInterface, id int) error {
 	fmt.Scanln(&input)
 	input = strings.TrimSpace(strings.ToLower(input))
 	if input != "" && input != "y" && input != "yes" {
-		fmt.Println("delete aborted")
-		return nil
+		return fmt.Errorf("delete aborted")
 	}
 	return ns.delNote(id)
 }

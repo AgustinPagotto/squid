@@ -1,4 +1,4 @@
-package todo
+package todos
 
 import (
 	"encoding/json"
@@ -15,14 +15,15 @@ type TodoStorageInterface interface {
 	addTodo(todo Todo) error
 	delTodo(id int) error
 	loadTodos() ([]Todo, error)
+	clearTodos() error
 }
 
 type TodoStorage struct {
 	Path string
 }
 
-func (ns *TodoStorage) findTodo(id int) (*Todo, error) {
-	todos, err := ns.loadTodos()
+func (ts *TodoStorage) findTodo(id int) (*Todo, error) {
+	todos, err := ts.loadTodos()
 	if err != nil {
 		return nil, err
 	}
@@ -34,53 +35,53 @@ func (ns *TodoStorage) findTodo(id int) (*Todo, error) {
 	return nil, fmt.Errorf("todos with id %d not found", id)
 }
 
-func (ns *TodoStorage) editTodo(todo Todo) error {
-	todos, err := ns.loadTodos()
+func (ts *TodoStorage) editTodo(todo Todo) error {
+	todos, err := ts.loadTodos()
 	if err != nil {
 		return err
 	}
 	for i := range todos {
 		if todos[i].ID == todo.ID {
 			todos[i] = todo
-			return ns.persistTodos(todos)
+			return ts.persistTodos(todos)
 		}
 	}
 	return fmt.Errorf("todo with id %d not found", todo.ID)
 }
 
-func (ns *TodoStorage) addTodo(todo Todo) error {
-	todos, err := ns.loadTodos()
+func (ts *TodoStorage) addTodo(todo Todo) error {
+	todos, err := ts.loadTodos()
 	if err != nil {
 		return err
 	}
 	todo.ID = nextID(todos)
 	todos = append(todos, todo)
-	return ns.persistTodos(todos)
+	return ts.persistTodos(todos)
 }
 
-func (ns *TodoStorage) delTodo(id int) error {
-	todos, err := ns.loadTodos()
+func (ts *TodoStorage) delTodo(id int) error {
+	todos, err := ts.loadTodos()
 	if err != nil {
 		return err
 	}
 	for i := range todos {
 		if todos[i].ID == id {
-			return ns.persistTodos(slices.Delete(todos, i, i+1))
+			return ts.persistTodos(slices.Delete(todos, i, i+1))
 		}
 	}
 	return fmt.Errorf("todo with id %d not found", id)
 }
 
-func (ns *TodoStorage) persistTodos(todos []Todo) error {
+func (ts *TodoStorage) persistTodos(todos []Todo) error {
 	jsonTodos, err := json.MarshalIndent(todos, "", " ")
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(ns.Path, jsonTodos, config.FilePerm)
+	return os.WriteFile(ts.Path, jsonTodos, config.FilePerm)
 }
 
-func (ns *TodoStorage) loadTodos() ([]Todo, error) {
-	file, err := os.ReadFile(ns.Path)
+func (ts *TodoStorage) loadTodos() ([]Todo, error) {
+	file, err := os.ReadFile(ts.Path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []Todo{}, nil
@@ -90,6 +91,20 @@ func (ns *TodoStorage) loadTodos() ([]Todo, error) {
 	var todos []Todo
 	err = json.Unmarshal(file, &todos)
 	return todos, err
+}
+
+func (ts *TodoStorage) clearTodos() error {
+	todos, err := ts.loadTodos()
+	if err != nil {
+		return err
+	}
+	var pendingTodos []Todo
+	for _, t := range todos {
+		if !t.IsDone {
+			pendingTodos = append(pendingTodos, t)
+		}
+	}
+	return ts.persistTodos(pendingTodos)
 }
 
 func nextID(todos []Todo) int {
