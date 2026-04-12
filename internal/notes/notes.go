@@ -9,6 +9,7 @@ import (
 
 	"github.com/AgustinPagotto/squid/internal/cli"
 	"github.com/AgustinPagotto/squid/internal/validator"
+	"github.com/sahilm/fuzzy"
 )
 
 type Note struct {
@@ -18,6 +19,12 @@ type Note struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+const (
+	bold   = "\033[1m"
+	yellow = "\033[33m"
+	reset  = "\033[0m"
+)
 
 func Handle(args []string, ns NoteStorageInterface) {
 	if len(args) == 0 {
@@ -73,6 +80,13 @@ func Handle(args []string, ns NoteStorageInterface) {
 			fmt.Println(err)
 			return
 		}
+	case "search", "-s":
+		searchTerm, err := validator.ValidateAndExtractSearch(args)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		handleSearch(ns, searchTerm)
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
@@ -162,6 +176,29 @@ func handleShow(ns NoteStorageInterface, id int) error {
 	return nil
 }
 
+func handleSearch(ns NoteStorageInterface, searchTerm string) error {
+	notes, err := ns.loadNotes()
+	if err != nil {
+		return err
+	}
+	var bodies []string
+	var titles []string
+	for _, note := range notes {
+		bodies = append(bodies, note.Body)
+		titles = append(titles, note.Title)
+	}
+	titleScores := fuzzy.Find(searchTerm, titles)[:2]
+	//bodyScores := fuzzy.Find(searchTerm, bodies)[:2]
+	fmt.Println()
+	for _, r := range titleScores {
+		note := notes[r.Index]
+		preview := truncate(strings.ReplaceAll(note.Body, "\n", " "), 80)
+		fmt.Printf("%2d  %s\n", note.ID, highlight(r.Str, r.MatchedIndexes))
+		fmt.Printf("    %s\n\n", preview)
+	}
+	return nil
+}
+
 func openInEditor(initial string) (string, error) {
 	tmpFile, err := os.CreateTemp("", "squid-note-*.txt")
 	if err != nil {
@@ -228,4 +265,21 @@ func truncate(s string, max int) string {
 		return s
 	}
 	return s[:max-3] + "..."
+}
+
+func highlight(text string, indexes []int) string {
+	indexesOfTextSet := make(map[int]bool, len(indexes))
+	for _, i := range indexes {
+		indexesOfTextSet[i] = true
+	}
+
+	var b strings.Builder
+	for i, ch := range text {
+		if indexesOfTextSet[i] {
+			b.WriteString(bold + yellow + string(ch) + reset)
+		} else {
+			b.WriteRune(ch)
+		}
+	}
+	return b.String()
 }

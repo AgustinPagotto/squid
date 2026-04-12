@@ -31,3 +31,20 @@ func ValidateTodoText(text string) error {
 	}
 	return nil
 }
+
+func ValidateAndExtractSearch(args []string) (string, error) {
+	if !HasArgAmount(args, 2) {
+		return "", fmt.Errorf("please provide a search query")
+	}
+	query := strings.TrimSpace(strings.Join(args[1:], " "))
+	if query == "" {
+		return "", fmt.Errorf("search query cannot be empty")
+	}
+	if len(query) < 2 {
+		return "", fmt.Errorf("search query must be at least 2 characters")
+	}
+	if len(query) > 100 {
+		return "", fmt.Errorf("search query cannot exceed 100 characters")
+	}
+	return query, nil
+}

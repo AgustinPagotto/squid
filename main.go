@@ -8,6 +8,7 @@ import (
 
 	"github.com/AgustinPagotto/squid/internal/cli"
 	"github.com/AgustinPagotto/squid/internal/config"
+	"github.com/AgustinPagotto/squid/internal/context"
 	"github.com/AgustinPagotto/squid/internal/notes"
 	"github.com/AgustinPagotto/squid/internal/todos"
 )
@@ -44,7 +45,7 @@ func main() {
 		ns := &notes.NoteStorage{Path: filepath.Join(dir, "notes.json")}
 		notes.Handle(os.Args[2:], ns)
 		return
-	case "todo":
+	case "todos":
 		dir, err := config.FindRoot()
 		if err != nil {
 			if errors.Is(err, config.ErrRootNotFound) {
@@ -58,7 +59,17 @@ func main() {
 		todos.Handle(os.Args[2:], ts)
 		return
 	case "context":
-		fmt.Println("context")
+		dir, err := config.FindRoot()
+		if err != nil {
+			if errors.Is(err, config.ErrRootNotFound) {
+				fmt.Println("squid is not initialized, run 'squid init'")
+			} else {
+				fmt.Println(err)
+			}
+			return
+		}
+		cs := &context.ContextStorage{Path: filepath.Join(dir, "context.json")}
+		context.Handle(os.Args[2:], cs)
 		return
 	default:
 		fmt.Println("subcommand not valid")
