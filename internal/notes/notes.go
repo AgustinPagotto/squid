@@ -187,9 +187,10 @@ func handleSearch(ns NoteStorageInterface, searchTerm string) error {
 		bodies = append(bodies, note.Body)
 		titles = append(titles, note.Title)
 	}
-	titleScores := fuzzy.Find(searchTerm, titles)[:2]
-	//bodyScores := fuzzy.Find(searchTerm, bodies)[:2]
-	fmt.Println()
+	titleScores := fuzzy.Find(searchTerm, titles)
+	if len(titleScores) > 3 {
+		titleScores = titleScores[:2]
+	}
 	for _, r := range titleScores {
 		note := notes[r.Index]
 		preview := truncate(strings.ReplaceAll(note.Body, "\n", " "), 80)
@@ -197,6 +198,33 @@ func handleSearch(ns NoteStorageInterface, searchTerm string) error {
 		fmt.Printf("    %s\n\n", preview)
 	}
 	return nil
+}
+
+func parseNote(input string) (string, string, error) {
+	lines := strings.Split(input, "\n")
+	var result []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" && len(result) == 0 {
+			continue
+		}
+		if line == "" {
+			result = append(result, "")
+			continue
+		}
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		result = append(result, line)
+	}
+	if len(result) < 2 {
+		return "", "", fmt.Errorf("no sufficient content was written")
+	}
+	for len(result) > 0 && result[len(result)-1] == "" {
+		result = result[:len(result)-1]
+	}
+	return strings.TrimSpace(result[0]), strings.TrimSpace(strings.Join(result[1:], "\n")), nil
 }
 
 func openInEditor(initial string) (string, error) {
@@ -231,33 +259,6 @@ func getEditor() string {
 		return editor
 	}
 	return "nano"
-}
-
-func parseNote(input string) (string, string, error) {
-	lines := strings.Split(input, "\n")
-	var result []string
-
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if line == "" && len(result) == 0 {
-			continue
-		}
-		if line == "" {
-			result = append(result, "")
-			continue
-		}
-		if strings.HasPrefix(line, "#") {
-			continue
-		}
-		result = append(result, line)
-	}
-	if len(result) < 2 {
-		return "", "", fmt.Errorf("no sufficient content was written")
-	}
-	for len(result) > 0 && result[len(result)-1] == "" {
-		result = result[:len(result)-1]
-	}
-	return strings.TrimSpace(result[0]), strings.TrimSpace(strings.Join(result[1:], "\n")), nil
 }
 
 func truncate(s string, max int) string {
