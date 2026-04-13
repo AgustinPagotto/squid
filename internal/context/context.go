@@ -16,6 +16,8 @@ func Handle(args []string, cs ContextStorageInterface) {
 		return
 	}
 	switch args[0] {
+	case "-h":
+		printHelp()
 	case "activate", "a":
 		err := handleActivate(cs)
 		if err != nil {

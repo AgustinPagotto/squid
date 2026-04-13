@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/AgustinPagotto/squid/internal/cli"
 	"github.com/AgustinPagotto/squid/internal/config"
 	"github.com/AgustinPagotto/squid/internal/context"
 	"github.com/AgustinPagotto/squid/internal/notes"
@@ -21,7 +20,14 @@ func main() {
 	switch os.Args[1] {
 	case "init":
 		if len(os.Args) > 2 && os.Args[2] == "-h" {
-			cli.PrintInitHelp()
+			fmt.Print(`Initialize squid in the current directory
+
+Usage:
+  squid init
+
+Creates a .squid/ directory in the current directory. Run this once
+per project. All squid data (notes, todos, context) will be stored there.
+`)
 			return
 		}
 		if err := config.Init(); err != nil {
@@ -30,7 +36,22 @@ func main() {
 		}
 		fmt.Println("Init run sucessfuly, .squid folder created")
 	case "-h":
-		cli.PrintHelp()
+		fmt.Print(`Squid — project-aware developer context CLI
+
+Usage:
+  squid <command> [arguments]
+
+Available Commands:
+  init       Initialize squid in the current directory
+  notes      Manage project notes
+  todo       Manage project todos
+  context    Manage project context and aliases
+
+Flags:
+  -h         Show help for squid
+
+Use "squid <command> -h" for more information about a command.
+`)
 		return
 	case "notes":
 		dir, err := config.FindRoot()

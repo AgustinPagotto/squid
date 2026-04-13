@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AgustinPagotto/squid/internal/cli"
 	"github.com/AgustinPagotto/squid/internal/validator"
 	"github.com/sahilm/fuzzy"
 )
@@ -33,7 +32,7 @@ func Handle(args []string, ns NoteStorageInterface) {
 	}
 	switch args[0] {
 	case "-h":
-		cli.PrintNotesHelp()
+		printHelp()
 	case "add", "a":
 		err := handleAdd(ns)
 		if err != nil {
@@ -93,7 +92,7 @@ func Handle(args []string, ns NoteStorageInterface) {
 }
 
 func handleAdd(ns NoteStorageInterface) error {
-	content, err := openInEditor(cli.AddNoteTemplate)
+	content, err := openInEditor(addNoteTemplate)
 	if err != nil {
 		return err
 	}
@@ -110,7 +109,7 @@ func handleEdit(ns NoteStorageInterface, id int) error {
 	if err != nil {
 		return err
 	}
-	initial := fmt.Sprintf("%s\n\n%s\n\n%s", note.Title, note.Body, cli.EditNoteTemplate)
+	initial := fmt.Sprintf("%s\n\n%s\n\n%s", note.Title, note.Body, editNoteTemplate)
 	content, err := openInEditor(initial)
 	if err != nil {
 		return err

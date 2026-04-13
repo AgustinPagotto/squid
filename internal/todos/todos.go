@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AgustinPagotto/squid/internal/cli"
 	"github.com/AgustinPagotto/squid/internal/validator"
 )
 
@@ -24,7 +23,7 @@ func Handle(args []string, ts TodoStorageInterface) {
 	}
 	switch args[0] {
 	case "-h":
-		cli.PrintTodoHelp()
+		printHelp()
 	case "add", "a":
 		if !validator.HasArgAmount(args, 2) {
 			fmt.Println("expected a text for the new todo item")
