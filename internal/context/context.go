@@ -3,6 +3,8 @@ package context
 import (
 	"fmt"
 	"os"
+
+	"golang.org/x/term"
 )
 
 type Alias struct {
@@ -31,6 +33,9 @@ func Handle(args []string, cs ContextStorageInterface) {
 }
 
 func handleActivate(cs ContextStorageInterface) error {
+	if term.IsTerminal(int(os.Stdout.Fd())) {
+		return fmt.Errorf("hint: run as: eval \"$(squid context activate)\"")
+	}
 	aliases, err := cs.loadAliases()
 	if err != nil {
 		return err
