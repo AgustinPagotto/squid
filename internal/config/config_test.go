@@ -92,7 +92,7 @@ func TestInit(t *testing.T) {
 			root := chdirTemp(t)
 			tt.setup(root)
 
-			err := Init()
+			err := Init([]string{})
 			if err != nil {
 				t.Fatalf("Init() error = %v", err)
 			}

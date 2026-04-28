@@ -19,39 +19,13 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "init":
-		if len(os.Args) > 2 && os.Args[2] == "-h" {
-			fmt.Print(`Initialize squid in the current directory
-
-Usage:
-  squid init
-
-Creates a .squid/ directory in the current directory. Run this once
-per project. All squid data (notes, todos, context) will be stored there.
-`)
-			return
-		}
-		if err := config.Init(); err != nil {
+		if err := config.Init(os.Args[2:]); err != nil {
 			fmt.Println(err)
 			return
 		}
 		fmt.Println("Init run sucessfuly, .squid folder created")
 	case "-h":
-		fmt.Print(`Squid — project-aware developer context CLI
-
-Usage:
-  squid <command> [arguments]
-
-Available Commands:
-  init       Initialize squid in the current directory
-  notes      Manage project notes
-  todo       Manage project todos
-  context    Manage project context and aliases
-
-Flags:
-  -h         Show help for squid
-
-Use "squid <command> -h" for more information about a command.
-`)
+		printHelp()
 		return
 	case "notes":
 		dir, err := config.FindRoot()
@@ -96,4 +70,23 @@ Use "squid <command> -h" for more information about a command.
 		fmt.Println("subcommand not valid")
 		return
 	}
+}
+
+func printHelp() {
+	fmt.Print(`Squid — project-aware developer context CLI
+
+Usage:
+  squid <command> [arguments]
+
+Available Commands:
+  init       Initialize squid in the current directory
+  notes      Manage project notes
+  todo       Manage project todos
+  context    Manage project context and aliases
+
+Flags:
+  -h         Show help for squid
+
+Use "squid <command> -h" for more information about a command.
+`)
 }
