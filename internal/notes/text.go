@@ -17,7 +17,7 @@ const editNoteTemplate = `
 # Squid Notes
 `
 
-const help = `Manage project notes
+const commandHelp = `Manage project notes
 
 Usage:
   squid notes <subcommand> [arguments]

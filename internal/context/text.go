@@ -1,9 +1,6 @@
 package context
 
-import "fmt"
-
-func printHelp() {
-	fmt.Print(`Manage project context and aliases
+const commandHelp = `Manage project context and aliases
 
 Usage:
   squid context <subcommand>
@@ -13,5 +10,4 @@ Subcommands:
 
 Examples:
   eval "$(squid context activate)"
-`)
-}
+`

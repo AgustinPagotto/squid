@@ -1,6 +1,6 @@
 package todos
 
-const help = `Manage project todos
+const commandHelp = `Manage project todos
 
 Usage:
   squid todo <subcommand> [arguments]

@@ -32,7 +32,7 @@ func Handle(args []string, ns NoteStorageInterface) {
 	}
 	switch args[0] {
 	case "-h":
-		fmt.Print(help)
+		fmt.Print(commandHelp)
 	case "add", "a":
 		err := handleAdd(ns)
 		if err != nil {

@@ -19,7 +19,7 @@ func Handle(args []string, cs ContextStorageInterface) {
 	}
 	switch args[0] {
 	case "-h":
-		printHelp()
+		fmt.Print(commandHelp)
 	case "activate", "a":
 		err := handleActivate(cs)
 		if err != nil {
