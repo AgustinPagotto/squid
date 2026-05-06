@@ -1,9 +1,6 @@
 package todos
 
-import "fmt"
-
-func printHelp() {
-	fmt.Print(`Manage project todos
+const help = `Manage project todos
 
 Usage:
   squid todo <subcommand> [arguments]
@@ -22,5 +19,4 @@ Examples:
   squid todo toggle
   squid todo del 2
   squid todo clear
-`)
-}
+`
