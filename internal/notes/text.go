@@ -1,7 +1,5 @@
 package notes
 
-import "fmt"
-
 const addNoteTemplate = `
 
 # First line will be your note title
@@ -19,8 +17,7 @@ const editNoteTemplate = `
 # Squid Notes
 `
 
-func printHelp() {
-	fmt.Print(`Manage project notes
+const help = `Manage project notes
 
 Usage:
   squid notes <subcommand> [arguments]
@@ -38,5 +35,4 @@ Examples:
   squid notes show 1
   squid notes edit 1
   squid notes del 1
-`)
-}
+`

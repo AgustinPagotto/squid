@@ -27,6 +27,12 @@ func Handle(args []string, cs ContextStorageInterface) {
 			return
 		}
 		fmt.Fprintln(os.Stderr, "activation of the context succeded")
+	case "list", "l":
+		err := handleList(cs)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
@@ -43,5 +49,22 @@ func handleActivate(cs ContextStorageInterface) error {
 	for _, alias := range aliases {
 		fmt.Printf("alias %s\n", alias.AliasCommand)
 	}
+	return nil
+}
+
+func handleList(cs ContextStorageInterface) error {
+	aliases, err := cs.loadAliases()
+	if err != nil {
+		return err
+	}
+	if len(aliases) == 0 {
+		fmt.Println("no aliases defined yet — run 'squid context add' to create one")
+		return nil
+	}
+
+	for _, a := range aliases {
+		fmt.Printf("%2d  %s\n", a.ID, a.AliasCommand)
+	}
+
 	return nil
 }
