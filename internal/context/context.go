@@ -26,7 +26,7 @@ func Handle(args []string, cs ContextStorageInterface) {
 			fmt.Fprintln(os.Stderr, err)
 			return
 		}
-		fmt.Fprintln(os.Stderr, "activation of the context succeded")
+		fmt.Fprintln(os.Stdout, "activation of the context succeded")
 	case "list", "l":
 		err := handleList(cs)
 		if err != nil {
