@@ -46,14 +46,17 @@ func handleInit() error {
 	switch option {
 	case 1:
 		option := predefinedInit()
-		initiatePredefinedSquidFolder(option)
-		fmt.Println(option)
+		err := os.Mkdir(".squid", DirPerm)
+		if err != nil {
+			return err
+		}
+		return initiatePredefinedSquidFolder(option)
 	case 2:
 		fmt.Println("selected custom")
 	default:
 		return nil
 	}
-	return os.Mkdir(".squid", DirPerm)
+	return nil
 }
 
 func FindRoot() (string, error) {
@@ -176,7 +179,26 @@ func predefinedInit() int {
 	}
 }
 
-func initiatePredefinedSquidFolder(initOption string) error {
-	os.Mkdir(".squid", DirPerm)
-	return nil
+func initiatePredefinedSquidFolder(initOption int) error {
+	var languageNameFile string
+	switch initOption {
+	case 1:
+		languageNameFile = "go.json"
+	case 2:
+		languageNameFile = "nodejs.json"
+	case 3:
+		languageNameFile = "python.json"
+	case 4:
+		languageNameFile = "react.json"
+	case 5:
+		languageNameFile = "react-native.json"
+	case 6:
+		languageNameFile = "nextjs.json"
+	}
+	data, err := predefinedFS.ReadFile("assets/predefined/" + languageNameFile)
+	if err != nil {
+		return err
+	}
+	dest := filepath.Join(".squid", "context.json")
+	return os.WriteFile(dest, data, FilePerm)
 }
