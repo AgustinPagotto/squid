@@ -34,15 +34,15 @@ func FindRoot() (string, error) {
 	return "", ErrRootNotFound
 }
 
-func FindShellConfigurationFile() (string, error) {
+func FindShellConfigurationFile(configFileName string) (string, error) {
 	currDir, err := os.Getwd()
 	if err != nil {
 		return "", fmt.Errorf("could not get current directory: %w", err)
 	}
 	for {
-		info, err := os.Stat(filepath.Join(currDir, ".zshrc"))
+		info, err := os.Stat(filepath.Join(currDir, configFileName))
 		if err == nil && !info.IsDir() {
-			return filepath.Join(currDir, ".zshrc"), nil
+			return filepath.Join(currDir, configFileName), nil
 		}
 		parent := filepath.Dir(currDir)
 		if currDir == parent {

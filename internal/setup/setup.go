@@ -15,17 +15,13 @@ func Init(args []string) error {
 		first = args[0]
 	}
 	if first == "-h" {
-		printHelp()
+		fmt.Print(commandHelp)
 		return nil
 	}
-	err := handleInit()
-	if err != nil {
-		return err
+	if first == "test" {
+		addEvalPermissions()
+		return nil
 	}
-	return nil
-}
-
-func handleInit() error {
 	dir, err := config.FindRoot()
 	if err == nil && dir != "" {
 		fmt.Println("squid already initialized in this directory, if you want to restart squid use squid ink command")
@@ -53,23 +49,7 @@ func handleInit() error {
 }
 
 func giveInitialOptions() int {
-	fmt.Print(`
-  ┌────────────────────────────────────────────────┐
-  │                                                │
-  │                 squid  ·  init                 │
-  │                                                │
-  ├────────────────────────────────────────────────┤
-  │                                                │
-  │   How would you like to set up your context?   │
-  │                                                │
-  │   1  ·  Predefined  ─  Node, Go, React, ...    │
-  │   2  ·  Custom      ─  build your own          │
-  │                                                │
-  │   3  ·  Exit                                   │
-  │                                                │
-  └────────────────────────────────────────────────┘
-
-`)
+	fmt.Print(initialOptionTemplate)
 	for {
 		fmt.Print("  Select [1-3]: ")
 		var input string
@@ -85,31 +65,9 @@ func giveInitialOptions() int {
 }
 
 func predefinedInit() int {
-	fmt.Print(`
-  ┌────────────────────────────────────────────────┐
-  │                                                │
-  │              squid  ·  predefined              │
-  │                                                │
-  ├────────────────────────────────────────────────┤
-  │                                                │
-  │   Select a predefined context:                 │
-  │                                                │
-  │   1  ·  Go                                     │
-  │   2  ·  Node.js                                │
-  │   3  ·  Python                                 │
-  │   4  ·  React                                  │
-  │   5  ·  React Native                           │
-  │   6  ·  Next.js                                │
-  │                                                │
-  │   7  ·  ← Back                                 │
-  │   8  ·  Exit                                   │
-  │                                                │
-  └────────────────────────────────────────────────┘
-
-`)
-
+	fmt.Print(predefinedInitTemplate)
 	for {
-		fmt.Print("  Select [1-14]: ")
+		fmt.Print("  Select [1-7]: ")
 		var input string
 		fmt.Scanln(&input)
 		switch input {
@@ -121,17 +79,6 @@ func predefinedInit() int {
 			fmt.Println("\n  Invalid option. Please enter a number between 1 and 8.")
 		}
 	}
-}
-
-func printHelp() {
-	fmt.Print(`Initialize squid in the current directory
-
-Usage:
-  squid init
-
-Creates a .squid/ directory in the current directory. Run this once
-per project. All squid data (notes, todos, context) will be stored there.
-`)
 }
 
 func initiatePredefinedSquidFolder(initOption int) error {
@@ -156,4 +103,19 @@ func initiatePredefinedSquidFolder(initOption int) error {
 	}
 	dest := filepath.Join(".squid", "context.json")
 	return os.WriteFile(dest, data, config.FilePerm)
+}
+
+func addEvalPermissions() error {
+	path, err := config.FindShellConfigurationFile(".zshrctest")
+	if err != nil {
+		return err
+	}
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, config.FilePerm)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.WriteString(zshEvalConfig)
+	return nil
 }
