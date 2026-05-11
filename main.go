@@ -9,6 +9,7 @@ import (
 	"github.com/AgustinPagotto/squid/internal/config"
 	"github.com/AgustinPagotto/squid/internal/context"
 	"github.com/AgustinPagotto/squid/internal/notes"
+	"github.com/AgustinPagotto/squid/internal/setup"
 	"github.com/AgustinPagotto/squid/internal/todos"
 )
 
@@ -19,7 +20,7 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "init":
-		if err := config.Init(os.Args[2:]); err != nil {
+		if err := setup.Init(os.Args[2:]); err != nil {
 			fmt.Println(err)
 			return
 		}
