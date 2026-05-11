@@ -35,20 +35,23 @@ func FindRoot() (string, error) {
 }
 
 func FindShellConfigurationFile(configFileName string) (string, error) {
-	currDir, err := os.Getwd()
+
+	home, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("could not get current directory: %w", err)
+		return "", err
 	}
-	for {
-		info, err := os.Stat(filepath.Join(currDir, configFileName))
+
+	candidates := []string{filepath.Join(home, configFileName),
+		filepath.Join(home, ".config", configFileName),
+		filepath.Join(home, ".config", "zsh", configFileName),
+	}
+
+	for _, c := range candidates {
+		info, err := os.Stat(c)
 		if err == nil && !info.IsDir() {
-			return filepath.Join(currDir, configFileName), nil
+			return filepath.Join(c), nil
 		}
-		parent := filepath.Dir(currDir)
-		if currDir == parent {
-			break
-		}
-		currDir = parent
+
 	}
 	return "", ErrRootNotFound
 }

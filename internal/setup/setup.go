@@ -106,7 +106,7 @@ func initiatePredefinedSquidFolder(initOption int) error {
 }
 
 func addEvalPermissions() error {
-	path, err := config.FindShellConfigurationFile(".zshrctest")
+	path, err := config.FindShellConfigurationFile(".zshrc")
 	if err != nil {
 		return err
 	}
