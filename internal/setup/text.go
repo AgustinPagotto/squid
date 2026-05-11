@@ -53,7 +53,7 @@ const initialOptionTemplate = `
 const successTemplate = `
   ┌────────────────────────────────────────────────┐
   │                                                │
-  │            ✓  squid  ·  done  ✓               │
+  │            ✓  squid  ·  done  ✓                │
   │                                                │
   ├────────────────────────────────────────────────┤
   │                                                │
@@ -75,4 +75,24 @@ squid() {
     command squid "$@"
   fi
 }
+`
+
+const selectShellTemplate = `
+  ┌────────────────────────────────────────────────┐
+  │                                                │
+  │              squid  ·  predefined              │
+  │                                                │
+  ├────────────────────────────────────────────────┤
+  │                                                │
+  │   Select a predefined context:                 │
+  │                                                │
+  │   1  ·  bash				   │
+  │   2  ·  zsh                                    │
+  │   3  ·  fish				   │
+  │                                                │
+  │   4  ·  ← Back                                 │
+  │   5  ·  Exit                                   │
+  │                                                │
+  └────────────────────────────────────────────────┘
+
 `

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/AgustinPagotto/squid/internal/config"
 )
@@ -14,22 +15,29 @@ func Init(args []string) error {
 	if len(args) > 0 {
 		first = args[0]
 	}
-	if first == "-h" {
-		fmt.Print(commandHelp)
-		return nil
-	}
-	if first == "test" {
-		addEvalPermissions()
-		return nil
-	}
 	dir, err := config.FindRoot()
 	if err == nil && dir != "" {
-		fmt.Println("squid already initialized in this directory, if you want to restart squid use squid ink command")
-		return nil
+		keepGoing := showOverrideWarning()
+		if !keepGoing {
+			return nil
+		}
 	}
-	if err != config.ErrRootNotFound {
-		fmt.Println(err)
+	if err != nil && err != config.ErrRootNotFound {
 		return err
+	}
+	switch first {
+	case "-h":
+		fmt.Print(commandHelp)
+		return nil
+	case "shell":
+		selectedShell := selectShell()
+		var shellFile, shellEvalConfig string
+		if selectedShell == 2 {
+			shellFile = ".zshrc"
+			shellEvalConfig = zshEvalConfig
+		}
+		addEvalPermissions(shellFile, shellEvalConfig)
+		return nil
 	}
 	option := giveInitialOptions()
 	switch option {
@@ -105,8 +113,8 @@ func initiatePredefinedSquidFolder(initOption int) error {
 	return os.WriteFile(dest, data, config.FilePerm)
 }
 
-func addEvalPermissions() error {
-	path, err := config.FindShellConfigurationFile(".zshrc")
+func addEvalPermissions(selectedShell string, shellEvalConfig string) error {
+	path, err := config.FindShellConfigurationFile(selectedShell)
 	if err != nil {
 		return err
 	}
@@ -116,6 +124,32 @@ func addEvalPermissions() error {
 	}
 	defer f.Close()
 
-	_, err = f.WriteString(zshEvalConfig)
+	_, err = f.WriteString(shellEvalConfig)
 	return nil
+}
+
+func selectShell() int {
+	fmt.Print(selectShellTemplate)
+	for {
+		fmt.Print("  Select [1-4]: ")
+		var input string
+		fmt.Scanln(&input)
+		switch input {
+		case "1", "2", "3", "4":
+			n, _ := strconv.Atoi(input)
+			return n
+		default:
+			fmt.Println("\n  Invalid option. Please enter a number between 1 and 4.")
+		}
+	}
+}
+func showOverrideWarning() bool {
+	fmt.Print("Are you sure you want to override your .squid? [Y/n]: ")
+	var input string
+	fmt.Scanln(&input)
+	input = strings.TrimSpace(strings.ToLower(input))
+	if input == "" || input == "y" || input == "yes" {
+		return true
+	}
+	return false
 }
