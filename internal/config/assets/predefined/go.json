@@ -1,0 +1,22 @@
+[
+  {
+    "ID": 0,
+    "AliasCommand": "run=\"go run ./...\""
+  },
+  {
+    "ID": 1,
+    "AliasCommand": "test=\"go test ./...\""
+  },
+  {
+    "ID": 2,
+    "AliasCommand": "build=\"go build ./...\""
+  },
+  {
+    "ID": 3,
+    "AliasCommand": "lint=\"golangci-lint run\""
+  },
+  {
+    "ID": 4,
+    "AliasCommand": "tidy=\"go mod tidy\""
+  }
+]

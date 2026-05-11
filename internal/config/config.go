@@ -46,6 +46,7 @@ func handleInit() error {
 	switch option {
 	case 1:
 		option := predefinedInit()
+		initiatePredefinedSquidFolder(option)
 		fmt.Println(option)
 	case 2:
 		fmt.Println("selected custom")
@@ -128,7 +129,8 @@ func giveInitialOptions() int {
 		fmt.Scanln(&input)
 		switch input {
 		case "1", "2", "3":
-			return int(input[0] - '0')
+			n, _ := strconv.Atoi(input)
+			return n
 		default:
 			fmt.Println("\n  Invalid option. Please enter a number between 1 and 3.")
 		}
@@ -151,15 +153,9 @@ func predefinedInit() int {
   │   4  ·  React                                  │
   │   5  ·  React Native                           │
   │   6  ·  Next.js                                │
-  │   7  ·  Vue.js                                 │
-  │   8  ·  Rust                                   │
-  │   9  ·  Django                                 │
-  │  10  ·  Rails                                  │
-  │  11  ·  Flutter                                │
-  │  12  ·  Docker                                 │
   │                                                │
-  │  13  ·  ← Back                                 │
-  │  14  ·  Exit                                   │
+  │   7  ·  ← Back                                 │
+  │   8  ·  Exit                                   │
   │                                                │
   └────────────────────────────────────────────────┘
 
@@ -171,11 +167,16 @@ func predefinedInit() int {
 		fmt.Scanln(&input)
 		switch input {
 		case "1", "2", "3", "4", "5", "6", "7",
-			"8", "9", "10", "11", "12", "13", "14":
+			"8":
 			n, _ := strconv.Atoi(input)
 			return n
 		default:
-			fmt.Println("\n  Invalid option. Please enter a number between 1 and 14.\n")
+			fmt.Println("\n  Invalid option. Please enter a number between 1 and 8.")
 		}
 	}
+}
+
+func initiatePredefinedSquidFolder(initOption string) error {
+	os.Mkdir(".squid", DirPerm)
+	return nil
 }

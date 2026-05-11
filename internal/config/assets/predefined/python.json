@@ -1,0 +1,22 @@
+[
+  {
+    "ID": 0,
+    "AliasCommand": "run=\"python main.py\""
+  },
+  {
+    "ID": 1,
+    "AliasCommand": "test=\"pytest\""
+  },
+  {
+    "ID": 2,
+    "AliasCommand": "install=\"pip install -r requirements.txt\""
+  },
+  {
+    "ID": 3,
+    "AliasCommand": "lint=\"flake8 .\""
+  },
+  {
+    "ID": 4,
+    "AliasCommand": "format=\"black .\""
+  }
+]

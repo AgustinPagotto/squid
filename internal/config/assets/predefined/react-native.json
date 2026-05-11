@@ -1,0 +1,22 @@
+[
+  {
+    "ID": 0,
+    "AliasCommand": "start=\"npx react-native start\""
+  },
+  {
+    "ID": 1,
+    "AliasCommand": "android=\"npx react-native run-android\""
+  },
+  {
+    "ID": 2,
+    "AliasCommand": "ios=\"npx react-native run-ios\""
+  },
+  {
+    "ID": 3,
+    "AliasCommand": "test=\"npm test\""
+  },
+  {
+    "ID": 4,
+    "AliasCommand": "install=\"npm install\""
+  }
+]

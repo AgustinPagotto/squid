@@ -1,0 +1,22 @@
+[
+  {
+    "ID": 0,
+    "AliasCommand": "start=\"npm start\""
+  },
+  {
+    "ID": 1,
+    "AliasCommand": "test=\"npm test\""
+  },
+  {
+    "ID": 2,
+    "AliasCommand": "build=\"npm run build\""
+  },
+  {
+    "ID": 3,
+    "AliasCommand": "install=\"npm install\""
+  },
+  {
+    "ID": 4,
+    "AliasCommand": "lint=\"npm run lint\""
+  }
+]
