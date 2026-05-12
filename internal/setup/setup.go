@@ -11,21 +11,11 @@ import (
 )
 
 func Init(args []string) error {
-	var first string
+	var firstArg string
 	if len(args) > 0 {
-		first = args[0]
+		firstArg = args[0]
 	}
-	dir, err := config.FindRoot()
-	if err == nil && dir != "" {
-		keepGoing := showOverrideWarning()
-		if !keepGoing {
-			return nil
-		}
-	}
-	if err != nil && err != config.ErrRootNotFound {
-		return err
-	}
-	switch first {
+	switch firstArg {
 	case "-h":
 		fmt.Print(commandHelp)
 		return nil
@@ -37,28 +27,44 @@ func Init(args []string) error {
 		}
 		addEvalPermissions(selectedShell)
 		return nil
-	}
-	option := giveInitialOptions()
-	switch option {
-	case 1:
-		option, action := predefinedInit()
-		if action == ActionExit {
-			fmt.Print("squid init exited")
+	case "":
+		dir, err := config.FindRoot()
+		var overrideConfirmed bool
+		if err == nil && dir != "" {
+			overrideConfirmed = showOverrideWarning()
+			if !overrideConfirmed {
+				return nil
+			}
+		}
+		if err != nil && err != config.ErrRootNotFound {
+			return err
+		}
+		option := giveInitialOptions()
+		switch option {
+		case 1:
+			option, action := predefinedInit()
+			if action == ActionExit {
+				fmt.Print("squid init exited")
+				return nil
+			}
+			if !overrideConfirmed {
+				err := os.Mkdir(".squid", config.DirPerm)
+				if err != nil {
+					return err
+				}
+			}
+			if err := initiatePredefinedSquidFolder(option); err != nil {
+				return err
+			}
+			fmt.Print(successTemplate)
+			return nil
+		case 2:
+			fmt.Println("selected custom")
+		default:
 			return nil
 		}
-		err := os.Mkdir(".squid", config.DirPerm)
-		if err != nil {
-			return err
-		}
-		if err := initiatePredefinedSquidFolder(option); err != nil {
-			return err
-		}
-		fmt.Print(successTemplate)
-		return nil
-	case 2:
-		fmt.Println("selected custom")
 	default:
-		return nil
+		fmt.Println("Not valid init subcommand")
 	}
 	return nil
 }
