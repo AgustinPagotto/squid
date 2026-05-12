@@ -25,8 +25,7 @@ const predefinedInitTemplate = `
   │   5  ·  React Native                           │
   │   6  ·  Next.js                                │
   │                                                │
-  │   7  ·  ← Back                                 │
-  │   8  ·  Exit                                   │
+  │   7  ·  Exit                                   │
   │                                                │
   └────────────────────────────────────────────────┘
 
@@ -77,21 +76,40 @@ squid() {
 }
 `
 
+const bashEvalConfig = `
+squid() {
+  if [ "$1 $2" = "context activate" ]; then
+    eval "$(command squid "$@")"
+  else
+    command squid "$@"
+  fi
+}
+`
+
+const fishEvalConfig = `
+function squid
+  if test "$argv[1] $argv[2]" = "context activate"
+    eval (command squid $argv)
+  else
+    command squid $argv
+  end
+end
+`
+
 const selectShellTemplate = `
   ┌────────────────────────────────────────────────┐
   │                                                │
-  │              squid  ·  predefined              │
+  │              squid  ·  shell selection         │
   │                                                │
   ├────────────────────────────────────────────────┤
   │                                                │
-  │   Select a predefined context:                 │
+  │   Select a shell:                              │
   │                                                │
   │   1  ·  bash				   │
   │   2  ·  zsh                                    │
   │   3  ·  fish				   │
   │                                                │
-  │   4  ·  ← Back                                 │
-  │   5  ·  Exit                                   │
+  │   4  ·  Exit                                   │
   │                                                │
   └────────────────────────────────────────────────┘
 
