@@ -20,12 +20,8 @@ func Init(args []string) error {
 		fmt.Print(commandHelp)
 		return nil
 	case "shell":
-		selectedShell, action := selectShell()
-		if action == ActionExit {
-			fmt.Print("squid init exited")
-			return nil
-		}
-		addEvalPermissions(selectedShell)
+		handleShell()
+		fmt.Print(successTemplate)
 		return nil
 	case "":
 		dir, err := config.FindRoot()
@@ -47,14 +43,19 @@ func Init(args []string) error {
 				fmt.Print("squid init exited")
 				return nil
 			}
-			if !overrideConfirmed {
-				err := os.Mkdir(".squid", config.DirPerm)
-				if err != nil {
-					return err
-				}
+			if overrideConfirmed {
+				os.RemoveAll(".squid")
+			}
+			err := os.Mkdir(".squid", config.DirPerm)
+			if err != nil {
+				return err
 			}
 			if err := initiatePredefinedSquidFolder(option); err != nil {
 				return err
+			}
+			continueWithShell := shellNextDialog()
+			if continueWithShell {
+				handleShell()
 			}
 			fmt.Print(successTemplate)
 			return nil
@@ -67,6 +68,14 @@ func Init(args []string) error {
 		fmt.Println("Not valid init subcommand")
 	}
 	return nil
+}
+
+func handleShell() {
+	selectedShell, action := selectShell()
+	if action == ActionExit {
+		fmt.Print("squid init exited")
+	}
+	addEvalPermissions(selectedShell)
 }
 
 func giveInitialOptions() int {
@@ -150,6 +159,17 @@ func showOverrideWarning() bool {
 	fmt.Scanln(&input)
 	input = strings.TrimSpace(strings.ToLower(input))
 	if input == "" || input == "y" || input == "yes" {
+		return true
+	}
+	return false
+}
+
+func shellNextDialog() bool {
+	fmt.Print(shellNextDialogTemplate)
+	var input string
+	fmt.Scanln(&input)
+	input = strings.TrimSpace(input)
+	if input == "1" {
 		return true
 	}
 	return false

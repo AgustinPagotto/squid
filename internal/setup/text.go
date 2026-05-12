@@ -114,3 +114,33 @@ const selectShellTemplate = `
   └────────────────────────────────────────────────┘
 
 `
+
+const shellNextDialogTemplate = `
+  ┌────────────────────────────────────────────────┐
+  │                                                │
+  │              squid  ·  shell setup             │
+  │                                                │
+  ├────────────────────────────────────────────────┤
+  │                                                │
+  │   For your aliases to work, squid needs to     │
+  │   add a small hook to your shell config        │
+  │   (e.g. .zshrc, .bashrc).                      │
+  │                                                │
+  │   This lets squid activate your context        │
+  │   automatically when you run:                  │
+  │                                                │
+  │   $ squid context activate                     │
+  │                                                │
+  │   Without it, aliases will be printed but      │
+  │   not applied to your shell session.           │
+  │                                                │
+  ├────────────────────────────────────────────────┤
+  │                                                │
+  │   Set up shell hook now?                       │
+  │                                                │
+  │   1  ·  Yes                                    │
+  │   2  ·  No, I'll do it later                   │
+  │                                                │
+  └────────────────────────────────────────────────┘
+
+`
