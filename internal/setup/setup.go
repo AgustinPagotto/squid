@@ -2,6 +2,7 @@ package setup
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -126,11 +127,20 @@ func addEvalPermissions(selectedShell Shell) error {
 	if err != nil {
 		return err
 	}
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, config.FilePerm)
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND, config.FilePerm)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
+
+	existing, err := io.ReadAll(f)
+	if err != nil {
+		return err
+	}
+	if strings.Contains(string(existing), selectedShell.evalString()) {
+		fmt.Println("  Shell hook already present, skipping.")
+		return nil
+	}
 
 	_, err = f.WriteString(selectedShell.evalString())
 	return err
