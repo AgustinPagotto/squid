@@ -66,6 +66,23 @@ const successTemplate = `
 
 `
 
+const overrideWarningTemplate = `
+  ┌────────────────────────────────────────────────┐
+  │                                                │
+  │              squid  ·  warning                 │
+  │                                                │
+  ├────────────────────────────────────────────────┤
+  │                                                │
+  │   A .squid folder already exists here.         │
+  │   This will override your current context.     │
+  │                                                │
+  │   1  ·  Yes, override it                       │
+  │   2  ·  No, keep it                            │
+  │                                                │
+  └────────────────────────────────────────────────┘
+
+`
+
 const zshEvalConfig = `
 squid() {
   if [[ "$1 $2" == "context activate" ]]; then
@@ -105,9 +122,9 @@ const selectShellTemplate = `
   │                                                │
   │   Select a shell:                              │
   │                                                │
-  │   1  ·  bash				   │
+  │   1  ·  bash                                   │
   │   2  ·  zsh                                    │
-  │   3  ·  fish				   │
+  │   3  ·  fish                                   │
   │                                                │
   │   4  ·  Exit                                   │
   │                                                │

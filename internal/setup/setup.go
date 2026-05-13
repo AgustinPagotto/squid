@@ -21,8 +21,9 @@ func Init(args []string) error {
 		fmt.Print(commandHelp)
 		return nil
 	case "shell":
-		handleShell()
-		fmt.Print(successTemplate)
+		if exited := handleShell(); !exited {
+			fmt.Print(successTemplate)
+		}
 		return nil
 	case "":
 		dir, err := config.FindRoot()
@@ -41,7 +42,7 @@ func Init(args []string) error {
 		case 1:
 			option, action := predefinedInit()
 			if action == ActionExit {
-				fmt.Print("squid init exited")
+				fmt.Println("  squid init exited")
 				return nil
 			}
 			if overrideConfirmed {
@@ -71,12 +72,13 @@ func Init(args []string) error {
 	return nil
 }
 
-func handleShell() {
+func handleShell() (exited bool) {
 	selectedShell, action := selectShell()
 	if action == ActionExit {
-		fmt.Print("squid init exited")
+		return true
 	}
 	addEvalPermissions(selectedShell)
+	return false
 }
 
 func giveInitialOptions() int {
@@ -164,23 +166,35 @@ func selectShell() (Shell, Action) {
 	}
 }
 func showOverrideWarning() bool {
-	fmt.Print("Are you sure you want to override your .squid? [Y/n]: ")
-	var input string
-	fmt.Scanln(&input)
-	input = strings.TrimSpace(strings.ToLower(input))
-	if input == "" || input == "y" || input == "yes" {
-		return true
+	fmt.Print(overrideWarningTemplate)
+	for {
+		fmt.Print("  Select [1-2]: ")
+		var input string
+		fmt.Scanln(&input)
+		switch strings.TrimSpace(input) {
+		case "1":
+			return true
+		case "2":
+			return false
+		default:
+			fmt.Println("\n  Invalid option. Please enter 1 or 2.")
+		}
 	}
-	return false
 }
 
 func shellNextDialog() bool {
 	fmt.Print(shellNextDialogTemplate)
-	var input string
-	fmt.Scanln(&input)
-	input = strings.TrimSpace(input)
-	if input == "1" {
-		return true
+	for {
+		fmt.Print("  Select [1-2]: ")
+		var input string
+		fmt.Scanln(&input)
+		switch strings.TrimSpace(input) {
+		case "1":
+			return true
+		case "2":
+			return false
+		default:
+			fmt.Println("\n  Invalid option. Please enter 1 or 2.")
+		}
 	}
-	return false
 }
