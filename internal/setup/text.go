@@ -52,7 +52,7 @@ const initialOptionTemplate = `
 const successTemplate = `
   ┌────────────────────────────────────────────────┐
   │                                                │
-  │            ✓  squid  ·  done  ✓                │
+  │              ✓  squid  ·  done  ✓              │
   │                                                │
   ├────────────────────────────────────────────────┤
   │                                                │
@@ -60,6 +60,24 @@ const successTemplate = `
   │                                                │
   │   To activate your context, run:               │
   │                                                │
+  │   $ squid context activate                     │
+  │                                                │
+  └────────────────────────────────────────────────┘
+
+`
+
+const successWithShellTemplate = `
+  ┌────────────────────────────────────────────────┐
+  │                                                │
+  │              ✓  squid  ·  done  ✓              │
+  │                                                │
+  ├────────────────────────────────────────────────┤
+  │                                                │
+  │   squid has been initialized successfully.     │
+  │                                                │
+  │   Reload your shell config, then activate:     │
+  │                                                │
+  │   $ %-43s│
   │   $ squid context activate                     │
   │                                                │
   └────────────────────────────────────────────────┘
@@ -75,6 +93,8 @@ const overrideWarningTemplate = `
   │                                                │
   │   A .squid folder already exists here.         │
   │   This will override your current context.     │
+  │                                                │
+  ├────────────────────────────────────────────────┤
   │                                                │
   │   1  ·  Yes, override it                       │
   │   2  ·  No, keep it                            │

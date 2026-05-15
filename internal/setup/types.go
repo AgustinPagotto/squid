@@ -40,6 +40,14 @@ func (s Shell) configFile() string {
 	}[s]
 }
 
+func (s Shell) sourceCmd() string {
+	return map[Shell]string{
+		ShellBash: "source ~/.bashrc",
+		ShellZsh:  "source ~/.zshrc",
+		ShellFish: "source ~/.config/fish/config.fish",
+	}[s]
+}
+
 func (s Shell) evalString() string {
 	return map[Shell]string{
 		ShellBash: bashEvalConfig,
@@ -58,6 +66,6 @@ const (
 type Flow int
 
 const (
-	FlowPredefined = iota + 1
+	FlowPredefined Flow = iota + 1
 	FlowCustom
 )

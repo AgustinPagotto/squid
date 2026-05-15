@@ -24,8 +24,8 @@ func Init(args []string) error {
 		fmt.Print(commandHelp)
 		return nil
 	case "shell":
-		if exited := handleShell(); !exited {
-			fmt.Print(successTemplate)
+		if shell, exited := handleShell(); !exited {
+			fmt.Print(buildSuccessTemplate(shell))
 		}
 		return nil
 	case "":
@@ -61,11 +61,11 @@ func Init(args []string) error {
 			if err := initiatePredefinedSquidFolder(option); err != nil {
 				return err
 			}
-			continueWithShell := shellNextDialog()
-			if continueWithShell {
-				handleShell()
+			var shell Shell
+			if shellNextDialog() {
+				shell, _ = handleShell()
 			}
-			fmt.Print(successTemplate)
+			fmt.Print(buildSuccessTemplate(shell))
 			return nil
 		case FlowCustom:
 			if overrideConfirmed {
@@ -76,14 +76,15 @@ func Init(args []string) error {
 				return err
 			}
 			if err := handleCustom(); err != nil {
+				os.RemoveAll(".squid")
 				fmt.Println(err)
 				return nil
 			}
-			continueWithShell := shellNextDialog()
-			if continueWithShell {
-				handleShell()
+			var shell Shell
+			if shellNextDialog() {
+				shell, _ = handleShell()
 			}
-			fmt.Print(successTemplate)
+			fmt.Print(buildSuccessTemplate(shell))
 			return nil
 		default:
 			return nil
@@ -94,13 +95,20 @@ func Init(args []string) error {
 	return nil
 }
 
-func handleShell() (exited bool) {
+func buildSuccessTemplate(shell Shell) string {
+	if shell == 0 {
+		return successTemplate
+	}
+	return fmt.Sprintf(successWithShellTemplate, shell.sourceCmd())
+}
+
+func handleShell() (shell Shell, exited bool) {
 	selectedShell, action := selectShell()
 	if action == ActionExit {
-		return true
+		return 0, true
 	}
 	addEvalPermissions(selectedShell)
-	return false
+	return selectedShell, false
 }
 
 func handleCustom() error {

@@ -35,7 +35,6 @@ func FindRoot() (string, error) {
 }
 
 func FindShellConfigurationFile(configFileName string) (string, error) {
-
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

@@ -24,7 +24,6 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println("Init run sucessfuly, .squid folder created")
 	case "-h":
 		printHelp()
 		return
