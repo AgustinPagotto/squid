@@ -90,7 +90,7 @@ func Init(args []string) error {
 			return nil
 		}
 	default:
-		fmt.Println("Not valid init subcommand")
+		fmt.Printf(unknownSubcommandTemplate, firstArg)
 	}
 	return nil
 }

@@ -1,5 +1,16 @@
 package setup
 
+const unknownSubcommandTemplate = `
+  squid init: unknown subcommand %q
+
+  Valid subcommands:
+    squid init          interactive context setup
+    squid init shell    install the shell hook
+
+  Run 'squid init -h' for more information.
+
+`
+
 const commandHelp = `Initialize squid in the current directory
 
 Usage:
