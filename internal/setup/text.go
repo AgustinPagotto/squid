@@ -3,10 +3,25 @@ package setup
 const commandHelp = `Initialize squid in the current directory
 
 Usage:
-  squid init
+  squid init           interactive setup — choose predefined or custom context
+  squid init shell     install the shell hook into your shell config
 
-Creates a .squid/ directory in the current directory. Run this once
-per project. All squid data (notes, todos, context) will be stored there.
+Predefined:
+  Pick a language or framework (Go, Node.js, Python, React, React Native,
+  Next.js) and squid will create a ready-to-use context with common aliases.
+
+Custom:
+  Opens your $EDITOR so you can define your own aliases in the format:
+    <name>="<command>"
+  Lines starting with '#' are ignored.
+
+Shell hook:
+  Adds a small function to your shell config (.zshrc, .bashrc, or
+  config.fish) so that 'squid context activate' actually applies aliases
+  to your current shell session.
+
+Flags:
+  -h    show this help message
 `
 
 const predefinedInitTemplate = `
