@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/AgustinPagotto/squid/internal/config"
+	"github.com/AgustinPagotto/squid/internal/context"
 )
 
 func Init(args []string) error {
@@ -37,9 +40,12 @@ func Init(args []string) error {
 		if err != nil && err != config.ErrRootNotFound {
 			return err
 		}
-		option := giveInitialOptions()
-		switch option {
-		case 1:
+		selectedOption, action := giveInitialOptions()
+		if action == ActionExit {
+			return nil
+		}
+		switch selectedOption {
+		case FlowPredefined:
 			option, action := predefinedInit()
 			if action == ActionExit {
 				fmt.Println("  squid init exited")
@@ -61,8 +67,24 @@ func Init(args []string) error {
 			}
 			fmt.Print(successTemplate)
 			return nil
-		case 2:
-			fmt.Println("selected custom")
+		case FlowCustom:
+			if overrideConfirmed {
+				os.RemoveAll(".squid")
+			}
+			err := os.Mkdir(".squid", config.DirPerm)
+			if err != nil {
+				return err
+			}
+			if err := handleCustom(); err != nil {
+				fmt.Println(err)
+				return nil
+			}
+			continueWithShell := shellNextDialog()
+			if continueWithShell {
+				handleShell()
+			}
+			fmt.Print(successTemplate)
+			return nil
 		default:
 			return nil
 		}
@@ -81,16 +103,93 @@ func handleShell() (exited bool) {
 	return false
 }
 
-func giveInitialOptions() int {
+func handleCustom() error {
+	content, err := openInEditor(addAliasesTemplate)
+	if err != nil {
+		return err
+	}
+	parsedAliases, err := parseAliases(content)
+	if err != nil {
+		return err
+	}
+	cs := &context.ContextStorage{Path: ".squid/context.json"}
+	err = context.HandleContextCreation(parsedAliases, cs)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func parseAliases(input string) ([]string, error) {
+	lines := strings.Split(input, "\n")
+	r := regexp.MustCompile(AliasRegex)
+	var result []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		if !r.MatchString(line) {
+			continue
+		}
+		result = append(result, line)
+	}
+	for len(result) > 0 && result[len(result)-1] == "" {
+		result = result[:len(result)-1]
+	}
+	if len(result) == 0 {
+		return nil, fmt.Errorf("no valid aliases found — aborting")
+	}
+	return result, nil
+}
+
+func openInEditor(initial string) (string, error) {
+	tmpFile, err := os.CreateTemp("", "squid-context-*.txt")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err = tmpFile.WriteString(initial); err != nil {
+		return "", err
+	}
+	tmpFile.Close()
+
+	cmd := exec.Command(getEditor(), tmpFile.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err = cmd.Run(); err != nil {
+		return "", err
+	}
+
+	content, err := os.ReadFile(tmpFile.Name())
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
+
+func getEditor() string {
+	if editor := os.Getenv("EDITOR"); editor != "" {
+		return editor
+	}
+	return "nano"
+}
+
+func giveInitialOptions() (Flow, Action) {
 	fmt.Print(initialOptionTemplate)
 	for {
 		fmt.Print("  Select [1-3]: ")
 		var input string
 		fmt.Scanln(&input)
 		switch input {
-		case "1", "2", "3":
+		case "1", "2":
 			n, _ := strconv.Atoi(input)
-			return n
+			return Flow(n), ActionSelect
+		case "3":
+			return 0, ActionExit
 		default:
 			fmt.Println("\n  Invalid option. Please enter a number between 1 and 3.")
 		}

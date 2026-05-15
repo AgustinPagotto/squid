@@ -3,10 +3,13 @@ package context
 import (
 	"encoding/json"
 	"os"
+
+	"github.com/AgustinPagotto/squid/internal/config"
 )
 
 type ContextStorageInterface interface {
 	loadAliases() ([]Alias, error)
+	persistContext([]Alias) error
 }
 
 type ContextStorage struct {
@@ -24,4 +27,12 @@ func (cs *ContextStorage) loadAliases() ([]Alias, error) {
 	var aliases []Alias
 	err = json.Unmarshal(file, &aliases)
 	return aliases, err
+}
+
+func (cs *ContextStorage) persistContext(aliases []Alias) error {
+	jsonNotes, err := json.MarshalIndent(aliases, "", " ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(cs.Path, jsonNotes, config.FilePerm)
 }

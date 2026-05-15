@@ -38,6 +38,18 @@ func Handle(args []string, cs ContextStorageInterface) {
 	}
 }
 
+func HandleContextCreation(entries []string, cs ContextStorageInterface) error {
+	var aliases []Alias
+	for i, aliasString := range entries {
+		aliases = append(aliases, Alias{ID: i, AliasCommand: aliasString})
+	}
+	err := cs.persistContext(aliases)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func handleActivate(cs ContextStorageInterface) error {
 	if term.IsTerminal(int(os.Stdout.Fd())) {
 		return fmt.Errorf("hint: run as: eval \"$(squid context activate)\"")

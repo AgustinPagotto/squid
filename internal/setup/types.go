@@ -1,5 +1,7 @@
 package setup
 
+const AliasRegex = `^[a-zA-Z_][a-zA-Z0-9_-]*="[^"]*"$`
+
 type Language int
 
 const (
@@ -50,6 +52,12 @@ type Action int
 
 const (
 	ActionSelect Action = iota + 1
-	ActionBack
 	ActionExit
+)
+
+type Flow int
+
+const (
+	FlowPredefined = iota + 1
+	FlowCustom
 )

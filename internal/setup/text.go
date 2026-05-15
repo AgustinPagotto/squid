@@ -161,3 +161,24 @@ const shellNextDialogTemplate = `
   └────────────────────────────────────────────────┘
 
 `
+
+const addAliasesTemplate = `
+# Add your custom aliases below, one per line.
+# Each alias will be loaded into your shell when you run:
+#
+#   squid context activate
+#
+# Format:
+#   <name>="<command>"
+#
+# Examples:
+#   start="npm run dev"
+#   test="go test ./..."
+#   deploy="./scripts/deploy.sh production"
+#   lint="golangci-lint run ./..."
+#
+# Lines starting with '#' are ignored.
+# Save and close the editor when you are done.
+# An empty file aborts the setup.
+#
+`
