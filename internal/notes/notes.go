@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AgustinPagotto/squid/internal/config"
 	"github.com/AgustinPagotto/squid/internal/validator"
 	"github.com/sahilm/fuzzy"
 )
@@ -92,7 +93,7 @@ func Handle(args []string, ns NoteStorageInterface) {
 }
 
 func handleAdd(ns NoteStorageInterface) error {
-	content, err := openInEditor(addNoteTemplate)
+	content, err := config.OpenInEditor(addNoteTemplate)
 	if err != nil {
 		return err
 	}
@@ -110,7 +111,7 @@ func handleEdit(ns NoteStorageInterface, id int) error {
 		return err
 	}
 	initial := fmt.Sprintf("%s\n\n%s\n\n%s", note.Title, note.Body, editNoteTemplate)
-	content, err := openInEditor(initial)
+	content, err := config.OpenInEditor(initial)
 	if err != nil {
 		return err
 	}
@@ -224,40 +225,6 @@ func parseNote(input string) (string, string, error) {
 		result = result[:len(result)-1]
 	}
 	return strings.TrimSpace(result[0]), strings.TrimSpace(strings.Join(result[1:], "\n")), nil
-}
-
-func openInEditor(initial string) (string, error) {
-	tmpFile, err := os.CreateTemp("", "squid-note-*.txt")
-	if err != nil {
-		return "", err
-	}
-	defer os.Remove(tmpFile.Name())
-
-	if _, err = tmpFile.WriteString(initial); err != nil {
-		return "", err
-	}
-	tmpFile.Close()
-
-	cmd := exec.Command(getEditor(), tmpFile.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err = cmd.Run(); err != nil {
-		return "", err
-	}
-
-	content, err := os.ReadFile(tmpFile.Name())
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
-}
-
-func getEditor() string {
-	if editor := os.Getenv("EDITOR"); editor != "" {
-		return editor
-	}
-	return "nano"
 }
 
 func truncate(s string, max int) string {

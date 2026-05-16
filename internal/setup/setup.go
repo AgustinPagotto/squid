@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -114,7 +113,7 @@ func handleShell() (shell Shell, exited bool) {
 }
 
 func handleCustom() error {
-	content, err := openInEditor(addAliasesTemplate)
+	content, err := config.OpenInEditor(addAliasesTemplate)
 	if err != nil {
 		return err
 	}
@@ -152,40 +151,6 @@ func parseAliases(input string) ([]string, error) {
 		return nil, fmt.Errorf("no valid aliases found — aborting")
 	}
 	return result, nil
-}
-
-func openInEditor(initial string) (string, error) {
-	tmpFile, err := os.CreateTemp("", "squid-context-*.txt")
-	if err != nil {
-		return "", err
-	}
-	defer os.Remove(tmpFile.Name())
-
-	if _, err = tmpFile.WriteString(initial); err != nil {
-		return "", err
-	}
-	tmpFile.Close()
-
-	cmd := exec.Command(getEditor(), tmpFile.Name())
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err = cmd.Run(); err != nil {
-		return "", err
-	}
-
-	content, err := os.ReadFile(tmpFile.Name())
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
-}
-
-func getEditor() string {
-	if editor := os.Getenv("EDITOR"); editor != "" {
-		return editor
-	}
-	return "nano"
 }
 
 func giveInitialOptions() (Flow, Action) {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -54,4 +55,38 @@ func FindShellConfigurationFile(configFileName string) (string, error) {
 
 	}
 	return "", ErrConfigFileNotFound
+}
+
+func OpenInEditor(helpText string) (string, error) {
+	tmpFile, err := os.CreateTemp("", "squid-temp-*.txt")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err = tmpFile.WriteString(helpText); err != nil {
+		return "", err
+	}
+	tmpFile.Close()
+
+	cmd := exec.Command(getEditor(), tmpFile.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err = cmd.Run(); err != nil {
+		return "", err
+	}
+
+	content, err := os.ReadFile(tmpFile.Name())
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
+
+func getEditor() string {
+	if editor := os.Getenv("EDITOR"); editor != "" {
+		return editor
+	}
+	return "nano"
 }
