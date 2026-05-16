@@ -2,8 +2,6 @@ package notes
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
 	"strings"
 	"time"
 
