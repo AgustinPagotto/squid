@@ -8,6 +8,7 @@ import (
 )
 
 var ErrRootNotFound = errors.New("no .squid directory found in current directory")
+var ErrConfigFileNotFound = errors.New("no config file found on the system")
 var ErrNotEnoughPermissions = errors.New("not enough permissions to read the current directory")
 
 const (
@@ -52,5 +53,5 @@ func FindShellConfigurationFile(configFileName string) (string, error) {
 		}
 
 	}
-	return "", ErrRootNotFound
+	return "", ErrConfigFileNotFound
 }

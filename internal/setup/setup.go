@@ -22,12 +22,10 @@ func Init(args []string) error {
 	switch firstArg {
 	case "-h":
 		fmt.Print(commandHelp)
-		return nil
 	case "shell":
 		if shell, exited := handleShell(); !exited {
 			fmt.Print(buildSuccessTemplate(shell))
 		}
-		return nil
 	case "":
 		dir, err := config.FindRoot()
 		var overrideConfirmed bool
@@ -107,7 +105,11 @@ func handleShell() (shell Shell, exited bool) {
 	if action == ActionExit {
 		return 0, true
 	}
-	addEvalPermissions(selectedShell)
+	err := addEvalPermissions(selectedShell)
+	if err != nil {
+		fmt.Println(err)
+		return 0, true
+	}
 	return selectedShell, false
 }
 
@@ -247,8 +249,7 @@ func addEvalPermissions(selectedShell Shell) error {
 		return err
 	}
 	if strings.Contains(string(existing), selectedShell.evalString()) {
-		fmt.Println("  Shell hook already present, skipping.")
-		return nil
+		return fmt.Errorf("Shell hook already present, no need to add it again.")
 	}
 
 	_, err = f.WriteString(selectedShell.evalString())
