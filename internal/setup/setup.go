@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -117,7 +116,7 @@ func handleCustom() error {
 	if err != nil {
 		return err
 	}
-	parsedAliases, err := parseAliases(content)
+	parsedAliases, err := context.ParseAliases(content)
 	if err != nil {
 		return err
 	}
@@ -127,30 +126,6 @@ func handleCustom() error {
 		return err
 	}
 	return nil
-}
-
-func parseAliases(input string) ([]string, error) {
-	lines := strings.Split(input, "\n")
-	r := regexp.MustCompile(AliasRegex)
-	var result []string
-
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "#") {
-			continue
-		}
-		if !r.MatchString(line) {
-			continue
-		}
-		result = append(result, line)
-	}
-	for len(result) > 0 && result[len(result)-1] == "" {
-		result = result[:len(result)-1]
-	}
-	if len(result) == 0 {
-		return nil, fmt.Errorf("no valid aliases found — aborting")
-	}
-	return result, nil
 }
 
 func giveInitialOptions() (Flow, Action) {

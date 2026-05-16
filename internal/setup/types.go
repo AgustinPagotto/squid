@@ -1,7 +1,5 @@
 package setup
 
-const AliasRegex = `^[a-zA-Z_][a-zA-Z0-9_-]*="[^"]*"$`
-
 type Language int
 
 const (

@@ -3,7 +3,10 @@ package context
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 
+	"github.com/AgustinPagotto/squid/internal/config"
 	"golang.org/x/term"
 )
 
@@ -11,6 +14,8 @@ type Alias struct {
 	ID           int
 	AliasCommand string
 }
+
+const AliasRegex = `^[a-zA-Z_][a-zA-Z0-9_-]*="[^"]*"$`
 
 func Handle(args []string, cs ContextStorageInterface) {
 	if len(args) == 0 {
@@ -20,13 +25,19 @@ func Handle(args []string, cs ContextStorageInterface) {
 	switch args[0] {
 	case "-h":
 		fmt.Print(commandHelp)
-	case "activate", "a":
+	case "activate", "ac":
 		err := handleActivate(cs)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return
 		}
 		fmt.Fprintln(os.Stdout, "activation of the context succeded")
+	case "add", "a":
+		err := handleAdd(cs)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	case "list", "l":
 		err := handleList(cs)
 		if err != nil {
@@ -79,4 +90,55 @@ func handleList(cs ContextStorageInterface) error {
 	}
 
 	return nil
+}
+
+func handleAdd(cs ContextStorageInterface) error {
+	existing, err := cs.loadAliases()
+	if err != nil {
+		return err
+	}
+
+	var sb strings.Builder
+	sb.WriteString(addAliasesHeader)
+	for _, a := range existing {
+		sb.WriteString(a.AliasCommand + "\n")
+	}
+
+	content, err := config.OpenInEditor(sb.String())
+	if err != nil {
+		return err
+	}
+	parsedAliases, err := ParseAliases(content)
+	if err != nil {
+		return err
+	}
+	var aliases []Alias
+	for i, aliasString := range parsedAliases {
+		aliases = append(aliases, Alias{ID: i, AliasCommand: aliasString})
+	}
+	return cs.persistContext(aliases)
+}
+
+func ParseAliases(input string) ([]string, error) {
+	lines := strings.Split(input, "\n")
+	r := regexp.MustCompile(AliasRegex)
+	var result []string
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		if !r.MatchString(line) {
+			continue
+		}
+		result = append(result, line)
+	}
+	for len(result) > 0 && result[len(result)-1] == "" {
+		result = result[:len(result)-1]
+	}
+	if len(result) == 0 {
+		return nil, fmt.Errorf("no valid aliases found — aborting")
+	}
+	return result, nil
 }
