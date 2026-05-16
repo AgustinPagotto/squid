@@ -56,7 +56,7 @@ func Handle(args []string, cs ContextStorageInterface) {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println("note deleted")
+		fmt.Println("alias deleted")
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
