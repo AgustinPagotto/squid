@@ -2,7 +2,9 @@ package context
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
+	"slices"
 
 	"github.com/AgustinPagotto/squid/internal/config"
 )
@@ -10,6 +12,8 @@ import (
 type ContextStorageInterface interface {
 	loadAliases() ([]Alias, error)
 	persistContext([]Alias) error
+	findAlias(int) (*Alias, error)
+	delAlias(int) error
 }
 
 type ContextStorage struct {
@@ -35,4 +39,30 @@ func (cs *ContextStorage) persistContext(aliases []Alias) error {
 		return err
 	}
 	return os.WriteFile(cs.Path, jsonNotes, config.FilePerm)
+}
+
+func (cs *ContextStorage) findAlias(id int) (*Alias, error) {
+	aliases, err := cs.loadAliases()
+	if err != nil {
+		return nil, err
+	}
+	for i := range aliases {
+		if aliases[i].ID == id {
+			return &aliases[i], nil
+		}
+	}
+	return nil, fmt.Errorf("alias with id %d not found", id)
+}
+
+func (cs *ContextStorage) delAlias(id int) error {
+	notes, err := cs.loadAliases()
+	if err != nil {
+		return err
+	}
+	for i := range notes {
+		if notes[i].ID == id {
+			return cs.persistContext(slices.Delete(notes, i, i+1))
+		}
+	}
+	return fmt.Errorf("alias with id %d not found", id)
 }

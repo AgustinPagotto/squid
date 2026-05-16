@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/AgustinPagotto/squid/internal/config"
+	"github.com/AgustinPagotto/squid/internal/validator"
 	"golang.org/x/term"
 )
 
@@ -32,7 +33,7 @@ func Handle(args []string, cs ContextStorageInterface) {
 			return
 		}
 		fmt.Fprintln(os.Stdout, "activation of the context succeded")
-	case "add", "a":
+	case "add", "a", "edit":
 		err := handleAdd(cs)
 		if err != nil {
 			fmt.Println(err)
@@ -44,6 +45,18 @@ func Handle(args []string, cs ContextStorageInterface) {
 			fmt.Println(err)
 			return
 		}
+	case "del", "d":
+		id, err := validator.ValidateAndParseID(args, 1)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		err = handleDelete(cs, id)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("note deleted")
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
@@ -59,6 +72,21 @@ func HandleContextCreation(entries []string, cs ContextStorageInterface) error {
 		return err
 	}
 	return nil
+}
+
+func handleDelete(cs ContextStorageInterface, id int) error {
+	alias, err := cs.findAlias(id)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Are you sure you want to delete alias: %q? [Y/n]: ", alias.AliasCommand)
+	var input string
+	fmt.Scanln(&input)
+	input = strings.TrimSpace(strings.ToLower(input))
+	if input != "" && input != "y" && input != "yes" {
+		return fmt.Errorf("delete aborted")
+	}
+	return cs.delAlias(id)
 }
 
 func handleActivate(cs ContextStorageInterface) error {
