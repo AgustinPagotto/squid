@@ -28,15 +28,15 @@ func Init(args []string) error {
 		}
 	case "":
 		dir, err := config.FindRoot()
+		if err != nil && err != config.ErrRootNotFound {
+			return err
+		}
 		var overrideConfirmed bool
 		if err == nil && dir != "" {
 			overrideConfirmed = showOverrideWarning()
 			if !overrideConfirmed {
 				return nil
 			}
-		}
-		if err != nil && err != config.ErrRootNotFound {
-			return err
 		}
 		selectedOption, action := giveInitialOptions()
 		if action == ActionExit {
