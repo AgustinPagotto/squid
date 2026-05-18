@@ -36,13 +36,9 @@ func FindRoot() (string, error) {
 	return "", ErrRootNotFound
 }
 
-func FindShellConfigurationFile(configFileName string) (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-
-	candidates := []string{filepath.Join(home, configFileName),
+func FindShellConfigurationFile(configFileName, home string) (string, error) {
+	candidates := []string{
+		filepath.Join(home, configFileName),
 		filepath.Join(home, ".config", configFileName),
 		filepath.Join(home, ".config", "zsh", configFileName),
 	}

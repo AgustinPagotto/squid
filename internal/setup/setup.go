@@ -174,7 +174,11 @@ func initiatePredefinedSquidFolder(initOption Language) error {
 }
 
 func addEvalPermissions(selectedShell Shell) error {
-	path, err := config.FindShellConfigurationFile(selectedShell.configFile())
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	path, err := config.FindShellConfigurationFile(selectedShell.configFile(), home)
 	if err != nil {
 		return err
 	}

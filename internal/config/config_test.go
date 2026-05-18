@@ -72,36 +72,88 @@ func TestFindRoot(t *testing.T) {
 	}
 }
 
-func TestInit(t *testing.T) {
+func TestFindShellConfigurationFile(t *testing.T) {
 	tests := []struct {
-		name  string
-		setup func(root string)
+		name     string
+		setup    func(home string)
+		fileName string
+		wantErr  error
+		wantPath func(home string) string
 	}{
 		{
-			name:  "creates .squid when not present",
-			setup: func(root string) {},
+			name:     "file at home root",
+			fileName: ".zshrc",
+			setup: func(home string) {
+				os.WriteFile(filepath.Join(home, ".zshrc"), []byte{}, FilePerm)
+			},
+			wantPath: func(home string) string { return filepath.Join(home, ".zshrc") },
 		},
 		{
-			name:  "no error when .squid already exists",
-			setup: func(root string) { os.Mkdir(filepath.Join(root, ".squid"), DirPerm) },
+			name:     "file inside .config",
+			fileName: ".bashrc",
+			setup: func(home string) {
+				os.MkdirAll(filepath.Join(home, ".config"), DirPerm)
+				os.WriteFile(filepath.Join(home, ".config", ".bashrc"), []byte{}, FilePerm)
+			},
+			wantPath: func(home string) string { return filepath.Join(home, ".config", ".bashrc") },
+		},
+		{
+			name:     "file inside .config/zsh",
+			fileName: ".zshrc",
+			setup: func(home string) {
+				os.MkdirAll(filepath.Join(home, ".config", "zsh"), DirPerm)
+				os.WriteFile(filepath.Join(home, ".config", "zsh", ".zshrc"), []byte{}, FilePerm)
+			},
+			wantPath: func(home string) string {
+				return filepath.Join(home, ".config", "zsh", ".zshrc")
+			},
+		},
+		{
+			name:     "file not found anywhere",
+			fileName: ".zshrc",
+			setup:    func(home string) {},
+			wantErr:  ErrConfigFileNotFound,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			root := chdirTemp(t)
-			tt.setup(root)
+			home := t.TempDir()
+			tt.setup(home)
 
-			err := Init([]string{})
-			if err != nil {
-				t.Fatalf("Init() error = %v", err)
+			got, err := FindShellConfigurationFile(tt.fileName, home)
+
+			if tt.wantErr != nil {
+				if !errors.Is(err, tt.wantErr) {
+					t.Errorf("FindShellConfigurationFile() error = %v, want %v", err, tt.wantErr)
+				}
+				return
 			}
+			if err != nil {
+				t.Fatalf("FindShellConfigurationFile() unexpected error = %v", err)
+			}
+			if want := tt.wantPath(home); got != want {
+				t.Errorf("FindShellConfigurationFile() = %q, want %q", got, want)
+			}
+		})
+	}
+}
 
-			info, statErr := os.Stat(filepath.Join(root, ".squid"))
-			if statErr != nil {
-				t.Errorf(".squid was not created: %v", statErr)
-			} else if info.Mode().Perm() != DirPerm {
-				t.Errorf(".squid permissions = %v, want %v", info.Mode().Perm(), DirPerm)
+func TestGetEditor(t *testing.T) {
+	tests := []struct {
+		name   string
+		envVal string
+		want   string
+	}{
+		{"uses $EDITOR when set", "vim", "vim"},
+		{"falls back to nano when unset", "", "nano"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("EDITOR", tt.envVal)
+			if got := getEditor(); got != tt.want {
+				t.Errorf("getEditor() = %q, want %q", got, tt.want)
 			}
 		})
 	}
