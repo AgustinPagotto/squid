@@ -116,8 +116,16 @@ func TestHandleList(t *testing.T) {
 		aliases []Alias
 		wantErr bool
 	}{
-		{"lists aliases", []Alias{{ID: 0, AliasCommand: `start="npm run dev"`}}, false},
-		{"empty storage prints message", []Alias{}, false},
+		{
+			name:    "lists aliases",
+			aliases: []Alias{{ID: 0, AliasCommand: `start="npm run dev"`}},
+			wantErr: false,
+		},
+		{
+			name:    "empty storage prints message",
+			aliases: []Alias{},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -255,8 +263,18 @@ func TestContextStorageDelAlias(t *testing.T) {
 		wantErr    bool
 		wantRemain int
 	}{
-		{"deletes existing alias", 0, false, 1},
-		{"non-existing alias returns error", 99, true, 1},
+		{
+			name:       "deletes existing alias",
+			id:         0,
+			wantErr:    false,
+			wantRemain: 1,
+		},
+		{
+			name:       "non-existing alias returns error",
+			id:         99,
+			wantErr:    true,
+			wantRemain: 1,
+		},
 	}
 
 	for _, tt := range tests {

@@ -16,9 +16,21 @@ func TestNextID(t *testing.T) {
 		notes []Note
 		want  int
 	}{
-		{"continues after max id", []Note{{ID: 1}, {ID: 3}, {ID: 2}}, 4},
-		{"single note", []Note{{ID: 5}}, 6},
-		{"no notes", []Note{}, 0},
+		{
+			name:  "continues after max id",
+			notes: []Note{{ID: 1}, {ID: 3}, {ID: 2}},
+			want:  4,
+		},
+		{
+			name:  "single note",
+			notes: []Note{{ID: 5}},
+			want:  6,
+		},
+		{
+			name:  "no notes",
+			notes: []Note{},
+			want:  0,
+		},
 	}
 
 	for _, tt := range tests {
@@ -77,8 +89,16 @@ func TestFindNote(t *testing.T) {
 		id      int
 		wantErr bool
 	}{
-		{"existing note", savedID, false},
-		{"non-existing note", 99, true},
+		{
+			name:    "existing note",
+			id:      savedID,
+			wantErr: false,
+		},
+		{
+			name:    "non-existing note",
+			id:      99,
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

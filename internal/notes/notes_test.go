@@ -20,8 +20,16 @@ func TestHandleList(t *testing.T) {
 		notes   []Note
 		wantErr bool
 	}{
-		{"lists notes", []Note{{ID: 1, Title: "A", Body: "B"}}, false},
-		{"empty storage prints message", []Note{}, false},
+		{
+			name:    "lists notes",
+			notes:   []Note{{ID: 1, Title: "A", Body: "B"}},
+			wantErr: false,
+		},
+		{
+			name:    "empty storage prints message",
+			notes:   []Note{},
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -42,8 +50,16 @@ func TestHandleShow(t *testing.T) {
 		id      int
 		wantErr bool
 	}{
-		{"existing note", 0, false},
-		{"missing note", 99, true},
+		{
+			name:    "existing note",
+			id:      0,
+			wantErr: false,
+		},
+		{
+			name:    "missing note",
+			id:      99,
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -63,8 +79,18 @@ func TestHandleDelete(t *testing.T) {
 		wantErr    bool
 		wantRemain int
 	}{
-		{"deletes existing note", 0, false, 1},
-		{"missing note returns error", 99, true, 2},
+		{
+			name:       "deletes existing note",
+			id:         0,
+			wantErr:    false,
+			wantRemain: 1,
+		},
+		{
+			name:       "missing note returns error",
+			id:         99,
+			wantErr:    true,
+			wantRemain: 2,
+		},
 	}
 
 	for _, tt := range tests {
@@ -148,9 +174,24 @@ func TestTruncate(t *testing.T) {
 		max   int
 		want  string
 	}{
-		{"shorter than max", "hello", 10, "hello"},
-		{"exact length", "hello", 5, "hello"},
-		{"truncated with ellipsis", "hello world", 8, "hello..."},
+		{
+			name:  "shorter than max",
+			input: "hello",
+			max:   10,
+			want:  "hello",
+		},
+		{
+			name:  "exact length",
+			input: "hello",
+			max:   5,
+			want:  "hello",
+		},
+		{
+			name:  "truncated with ellipsis",
+			input: "hello world",
+			max:   8,
+			want:  "hello...",
+		},
 	}
 
 	for _, tt := range tests {

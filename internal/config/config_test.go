@@ -145,8 +145,16 @@ func TestGetEditor(t *testing.T) {
 		envVal string
 		want   string
 	}{
-		{"uses $EDITOR when set", "vim", "vim"},
-		{"falls back to nano when unset", "", "nano"},
+		{
+			name:   "uses $EDITOR when set",
+			envVal: "vim",
+			want:   "vim",
+		},
+		{
+			name:   "falls back to nano when unset",
+			envVal: "",
+			want:   "nano",
+		},
 	}
 
 	for _, tt := range tests {
