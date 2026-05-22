@@ -66,3 +66,16 @@ func (cs *ContextStorage) delAlias(id int) error {
 	}
 	return fmt.Errorf("alias with id %d not found", id)
 }
+
+func nextID(aliases []Alias) int {
+	if len(aliases) == 0 {
+		return 0
+	}
+	maxID := 0
+	for _, a := range aliases {
+		if a.ID > maxID {
+			maxID = a.ID
+		}
+	}
+	return maxID + 1
+}

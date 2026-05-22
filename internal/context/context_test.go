@@ -311,3 +311,97 @@ func TestContextStorageDelAlias(t *testing.T) {
 		})
 	}
 }
+
+func TestNextID(t *testing.T) {
+	tests := []struct {
+		name    string
+		aliases []Alias
+		want    int
+	}{
+		{
+			name:    "no aliases",
+			aliases: []Alias{},
+			want:    0,
+		},
+		{
+			name:    "single alias",
+			aliases: []Alias{{ID: 3}},
+			want:    4,
+		},
+		{
+			name:    "continues after max id",
+			aliases: []Alias{{ID: 0}, {ID: 5}, {ID: 2}},
+			want:    6,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := nextID(tt.aliases); got != tt.want {
+				t.Errorf("nextID() = %d, want %d", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAssignIDs(t *testing.T) {
+	tests := []struct {
+		name     string
+		existing []Alias
+		parsed   []string
+		wantIDs  []int
+	}{
+		{
+			name:     "fresh set assigns 0-based ids",
+			existing: []Alias{},
+			parsed:   []string{`start="npm run dev"`, `test="go test ./..."`},
+			wantIDs:  []int{0, 1},
+		},
+		{
+			name: "existing aliases preserve their ids",
+			existing: []Alias{
+				{ID: 0, AliasCommand: `start="npm run dev"`},
+				{ID: 1, AliasCommand: `test="go test ./..."`},
+			},
+			parsed:  []string{`start="npm run dev"`, `test="go test ./..."`},
+			wantIDs: []int{0, 1},
+		},
+		{
+			name: "deleted alias leaves gap, new alias does not reuse id",
+			existing: []Alias{
+				{ID: 0, AliasCommand: `start="npm run dev"`},
+				{ID: 1, AliasCommand: `test="go test ./..."`},
+				{ID: 2, AliasCommand: `build="go build ./..."`},
+			},
+			// user deleted id=1 (test) in the editor and added a new one
+			parsed:  []string{`start="npm run dev"`, `build="go build ./..."`, `lint="golangci-lint run"`},
+			wantIDs: []int{0, 2, 3},
+		},
+		{
+			name: "new alias gets max+1 even with gaps",
+			existing: []Alias{
+				{ID: 0, AliasCommand: `start="npm run dev"`},
+				{ID: 5, AliasCommand: `test="go test ./..."`},
+			},
+			parsed:  []string{`start="npm run dev"`, `test="go test ./..."`, `new="echo hi"`},
+			wantIDs: []int{0, 5, 6},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := assignIDs(tt.existing, tt.parsed)
+			if len(got) != len(tt.wantIDs) {
+				t.Fatalf("assignIDs() len = %d, want %d", len(got), len(tt.wantIDs))
+			}
+			for i, a := range got {
+				if a.ID != tt.wantIDs[i] {
+					t.Errorf("assignIDs()[%d].ID = %d, want %d", i, a.ID, tt.wantIDs[i])
+				}
+				if a.AliasCommand != tt.parsed[i] {
+					t.Errorf("assignIDs()[%d].AliasCommand = %q, want %q", i, a.AliasCommand, tt.parsed[i])
+				}
+			}
+		})
+	}
+}

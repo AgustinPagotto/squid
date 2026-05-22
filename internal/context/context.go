@@ -146,11 +146,23 @@ func handleAdd(cs ContextStorageInterface) error {
 	if err != nil {
 		return err
 	}
-	var aliases []Alias
-	for i, aliasString := range parsedAliases {
-		aliases = append(aliases, Alias{ID: i, AliasCommand: aliasString})
+	return cs.persistContext(assignIDs(existing, parsedAliases))
+}
+
+func assignIDs(existing []Alias, parsed []string) []Alias {
+	existingIDs := make(map[string]int, len(existing))
+	for _, a := range existing {
+		existingIDs[a.AliasCommand] = a.ID
 	}
-	return cs.persistContext(aliases)
+	var aliases []Alias
+	for _, aliasString := range parsed {
+		if id, ok := existingIDs[aliasString]; ok {
+			aliases = append(aliases, Alias{ID: id, AliasCommand: aliasString})
+		} else {
+			aliases = append(aliases, Alias{ID: nextID(aliases), AliasCommand: aliasString})
+		}
+	}
+	return aliases
 }
 
 func ParseAliases(input string) ([]string, error) {
