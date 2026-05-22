@@ -1,6 +1,7 @@
 package context
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -37,8 +38,28 @@ func TestParseAliases(t *testing.T) {
 			want:  []string{`start="npm run dev"`},
 		},
 		{
-			name:    "empty input returns error",
-			input:   "",
+			name:  "single-quoted value is valid",
+			input: `start='npm run dev'`,
+			want:  []string{`start='npm run dev'`},
+		},
+		{
+			name:    "empty double-quoted value is invalid",
+			input:   `start=""`,
+			wantErr: true,
+		},
+		{
+			name:    "empty single-quoted value is invalid",
+			input:   `start=''`,
+			wantErr: true,
+		},
+		{
+			name:    "alias name exceeds max length",
+			input:   strings.Repeat("a", MaxAliasNameLen+1) + `="cmd"`,
+			wantErr: true,
+		},
+		{
+			name:    "command value exceeds max length",
+			input:   `start="` + strings.Repeat("x", MaxAliasCommandLen+1) + `"`,
 			wantErr: true,
 		},
 		{
