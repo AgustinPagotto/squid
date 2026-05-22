@@ -33,12 +33,13 @@ func Handle(args []string, cs ContextStorageInterface) {
 	case "-h":
 		fmt.Print(commandHelp)
 	case "activate", "ac":
+		//In this case the stderror is used because the stdout would be catched by the eval
 		err := handleActivate(cs)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return
 		}
-		fmt.Fprintln(os.Stdout, "activation of the context succeded")
+		fmt.Fprintln(os.Stderr, "activation of the context succeeded")
 	case "add", "a", "edit":
 		err := handleAdd(cs)
 		if err != nil {
