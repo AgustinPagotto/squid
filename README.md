@@ -1,5 +1,4 @@
-<div align="center">
-<pre>
+```
       .:=:::::::::::@%.
        .@-=#=+=+----::::::.
         ::--=======%*-@::-::.
@@ -22,7 +21,9 @@
                                    @@:       @:::::
                                    .:.           :::
                                     .#:           .@
-</pre>
+```
+
+<div align="center">
 
 ### squid &nbsp;·&nbsp; project-aware developer context CLI
 
