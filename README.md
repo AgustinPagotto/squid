@@ -28,7 +28,6 @@
 ### squid &nbsp;·&nbsp; project-aware developer context CLI
 
 [![Go](https://img.shields.io/badge/go-1.21+-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev)
-[![License](https://img.shields.io/github/license/AgustinPagotto/squid?style=flat)](LICENSE)
 
 </div>
 
