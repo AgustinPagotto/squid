@@ -33,7 +33,7 @@
 
 ---
 
-**squid** is a project-aware developer context CLI. It lives inside your project and keeps your notes, todos, and shell aliases close to the code they belong to — not scattered across sticky notes, browser tabs, or global dotfiles.
+**squid** is a project-aware developer context CLI. It lives inside your project and keeps your shell aliases, notes and todos close to the code they belong to. 
 
 ## Why squid
 
@@ -55,7 +55,7 @@ Navigate to your project root and run:
 squid init
 ```
 
-This creates a `.squid/` folder and walks you through setting up your context. You can choose a **predefined** context (Go, Node.js, Python, React, React Native, Next.js) or define your own aliases from scratch.
+This creates a `.squid/` folder and walks you through setting up your context. You can choose a **predefined** context (Go, Node.js, Python, React, React Native, Next.js) or  custom, where you define your own aliases from scratch. You can checkout the predefined and modify them if that's your thing. If you do custom a terminal editor will open where you can write your aliases.
 
 ### Shell hook
 
@@ -65,7 +65,7 @@ For aliases to actually apply to your shell session, squid needs a small hook in
 squid init shell
 ```
 
-This adds a wrapper function to your `.zshrc`, `.bashrc`, or `config.fish` that intercepts `squid context activate` and pipes it through `eval`.
+This adds a wrapper function to your `.zshrc` or `.bashrc` that intercepts `squid context activate` and pipes it through `eval`.
 
 ## Commands
 
@@ -109,6 +109,8 @@ Rules:
 - Lines starting with `#` are treated as comments and ignored
 
 **Activating your context**
+
+This is the most important command and why squid was created. This command will execute the defined aliases, making the current session of the terminal custom to the project you are working on, this way you won't have to remember commands or look them up.
 
 ```sh
 squid context activate
