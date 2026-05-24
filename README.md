@@ -33,11 +33,9 @@
 
 ---
 
-**squid** gives the developer a context for the project, making it easier to remember aliases, remember notes and have todos. It lives inside your project and keeps your shell aliases, notes and todos close to the code they belong to. 
+## What is Squid?
 
-## Why squid
-
-Every project has its own mental model: the commands you run, the things you need to remember, the tasks still pending. squid stores all of that inside a `.squid` folder in a easy to edit json format at the root of your project, so the context travels with the repo or you add it to the .gitignore and stays with you.
+Every project has its own mental model: the commands you run, the things you need to remember, the tasks made and the ones still pending. **squid** gives developers a context for the project, making it easier to remember aliases, have notes and manage todos. It stores all of that inside a `.squid` folder in a easy to edit json format at the root of your project, so the context travels with the code, where it belongs.
 
 ## Installation
 
