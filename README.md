@@ -53,7 +53,7 @@ Navigate to your project root and run:
 squid init
 ```
 
-This creates a `.squid/` folder and walks you through setting up your context. You can choose a **predefined** context (Go, Node.js, Python, React, React Native, Next.js) or define a custom one, where you define your own aliases from scratch. You can checkout the predefined and modify them if that's your thing. If you do custom a terminal editor will open where you can write your aliases.
+This creates a `.squid/` folder and walks you through setting up your context. You can choose a **predefined** context (Go, Node.js, Python, React, React Native, Next.js) or define a custom one, where you define your own aliases from scratch. If you do custom a terminal editor will open where you can write your aliases.
 
 ### Shell hook
 
