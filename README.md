@@ -164,9 +164,3 @@ squid todos -h               # show help
 ```
 
 Todo text is capped at 280 characters.
-
-## Global flags
-
-```sh
-squid -h    # show top-level help
-```
