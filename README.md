@@ -85,9 +85,9 @@ eval "$(squid context activate)"
 Initialize squid in the current directory.
 
 ```sh
-squid init           # interactive setup
-squid init shell     # install only the shell hook
-squid init -h        # show help
+squid init                      # interactive setup
+squid init shell                # install only the shell hook
+squid init -h                   # show help
 ```
 
 ---
@@ -97,11 +97,11 @@ squid init -h        # show help
 Manage your project's shell aliases — short names for the commands you run most.
 
 ```sh
-squid context add              # open your $EDITOR to add or edit aliases
-squid context list             # list all aliases with their IDs
-squid context activate         # load aliases into the current shell session
-squid context del <id>         # delete an alias by ID
-squid context -h               # show help
+squid context add               # open your $EDITOR to add or edit aliases
+squid context list              # list all aliases with their IDs
+squid context activate          # load aliases into the current shell session
+squid context del <id>          # delete an alias by ID
+squid context -h                # show help
 ```
 
 **Alias format**
