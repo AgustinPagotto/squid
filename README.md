@@ -33,11 +33,11 @@
 
 ---
 
-**squid** is a project-aware developer context CLI. It lives inside your project and keeps your shell aliases, notes and todos close to the code they belong to. 
+**squid** gives the developer a context for the project, making it easier to remember aliases, remember notes and have todos. It lives inside your project and keeps your shell aliases, notes and todos close to the code they belong to. 
 
 ## Why squid
 
-Every project has its own mental model: the commands you run, the things you need to remember, the tasks still pending. squid stores all of that inside a `.squid` folder at the root of your project, so the context travels with the repo.
+Every project has its own mental model: the commands you run, the things you need to remember, the tasks still pending. squid stores all of that inside a `.squid` folder in a easy to edit json format at the root of your project, so the context travels with the repo or you add it to the .gitignore and stays with you.
 
 ## Installation
 
@@ -55,17 +55,23 @@ Navigate to your project root and run:
 squid init
 ```
 
-This creates a `.squid/` folder and walks you through setting up your context. You can choose a **predefined** context (Go, Node.js, Python, React, React Native, Next.js) or  custom, where you define your own aliases from scratch. You can checkout the predefined and modify them if that's your thing. If you do custom a terminal editor will open where you can write your aliases.
+This creates a `.squid/` folder and walks you through setting up your context. You can choose a **predefined** context (Go, Node.js, Python, React, React Native, Next.js) or define a custom one, where you define your own aliases from scratch. You can checkout the predefined and modify them if that's your thing. If you do custom a terminal editor will open where you can write your aliases.
 
 ### Shell hook
 
-For aliases to actually apply to your shell session, squid needs a small hook in your shell config. During `init` you will be prompted to set it up, or you can run it separately at any time:
+The main functionality of squid is being able to have custom alises per project per terminal session, now for this to happen squid needs a small hook in your shell config. During `init` you will be prompted to set it up, or you can run it separately at any time:
 
 ```sh
 squid init shell
 ```
 
 This adds a wrapper function to your `.zshrc` or `.bashrc` that intercepts `squid context activate` and pipes it through `eval`.
+
+That being said if you prefer not to do it you can run the activate in the following manner (be aware that everytime that you want to activate the context, you will need to do this if the hook isn't present):
+
+```sh
+eval "$(squid context activate)"
+```
 
 ## Commands
 
@@ -75,7 +81,7 @@ Initialize squid in the current directory.
 
 ```sh
 squid init           # interactive setup
-squid init shell     # install the shell hook only
+squid init shell     # install only the shell hook
 squid init -h        # show help
 ```
 
@@ -167,11 +173,8 @@ Everything lives inside `.squid/` at your project root:
   todos.json     # todo items
 ```
 
-You can commit `.squid/` to share context with your team, or add it to `.gitignore` to keep it personal.
-
 ## Global flags
 
 ```sh
 squid -h    # show top-level help
 ```
-
