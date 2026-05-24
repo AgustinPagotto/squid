@@ -37,6 +37,13 @@
 
 Every project has its own mental model: the commands you run, the things you need to remember, the tasks made and the ones still pending. **squid** gives developers a context for the project, making it easier to remember aliases, have notes and manage todos. It stores all of that inside a `.squid` folder in a easy to edit json format at the root of your project, so the context travels with the code, where it belongs.
 
+```
+.squid/
+  context.json   # shell aliases
+  notes.json     # project notes
+  todos.json     # todo items
+```
+
 ## Installation
 
 ```sh
@@ -157,19 +164,6 @@ squid todos -h               # show help
 ```
 
 Todo text is capped at 280 characters.
-
----
-
-## Storage
-
-Everything lives inside `.squid/` at your project root:
-
-```
-.squid/
-  context.json   # shell aliases
-  notes.json     # project notes
-  todos.json     # todo items
-```
 
 ## Global flags
 
