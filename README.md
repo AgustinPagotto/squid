@@ -1,43 +1,48 @@
+```
+               .:=:::::::::::@%.
+                .@-=#=+=+----::::::.
+                 ::--=======%*-@::-::.
+                .%@:::-==-*===++---:::@      ..
+                 @@@:::-=--==@=*+++-:::      @@:.
+                  @*=:::%::=-======++---=.    .::.
+                   *@+:::::%--====@==++++-.    @::::::%
+                    @%::::-::-#--=====+++-:..       #::.
+                     .@#::::::::::-========-:@++..   ::.
+                        .#.:::::::::::-::-=+-%++==+ .-:.=-::%:+:.
+                           .:@:-@::::::::-*+*++*==-=-@*+::@...:::
+                               .@:@=::::@+++++===@-@*%#:@.     .@
+                                    .@*:@%@:+===---@=@@.        @
+                                        %@@@.#*@---+==---------
+                                 .#:.+   ..-.+**=-@-#%*:%:=.+:@#
+                               -::::+:::.   @-++@-+--       @:.:
+                                ..  .@@::::---==-=:::.       @=-
+                                       @*::-.+-:*@.::#.       :.@
+                                            +@#:.   =::::.     .@#
+                                            @@:       @:::::
+                                            .:.           :::
+                                             .#:           .@
+```
+
 <div align="center">
-<pre>
-      .:=:::::::::::@%.
-       .@-=#=+=+----::::::.
-        ::--=======%*-@::-::.
-       .%@:::-==-*===++---:::@      ..
-        @@@:::-=--==@=*+++-:::      @@:.
-         @*=:::%::=-======++---=.    .::.
-          *@+:::::%--====@==++++-.    @::::::%
-           @%::::-::-#--=====+++-:..       #::.
-            .@#::::::::::-========-:@++..   ::.
-               .#.:::::::::::-::-=+-%++==+ .-:.=-::%:+:.
-                  .:@:-@::::::::-*+*++*==-=-@*+::@...:::
-                      .@:@=::::@+++++===@-@*%#:@.     .@
-                           .@*:@%@:+===---@=@@.        @
-                               %@@@.#*@---+==---------
-                        .#:.+   ..-.+**=-@-#%*:%:=.+:@#
-                      -::::+:::.   @-++@-+--       @:.:
-                       ..  .@@::::---==-=:::.       @=-
-                              @*::-.+-:*@.::#.       :.@
-                                   +@#:.   =::::.     .@#
-                                   @@:       @:::::
-                                   .:.           :::
-                                    .#:           .@
-</pre>
 
 ### squid &nbsp;·&nbsp; project-aware developer context CLI
 
 [![Go](https://img.shields.io/badge/go-1.21+-00ADD8?style=flat&logo=go&logoColor=white)](https://go.dev)
-[![License](https://img.shields.io/github/license/AgustinPagotto/squid?style=flat)](LICENSE)
 
 </div>
 
 ---
 
-**squid** is a project-aware developer context CLI. It lives inside your project and keeps your notes, todos, and shell aliases close to the code they belong to — not scattered across sticky notes, browser tabs, or global dotfiles.
+## What is Squid?
 
-## Why squid
+Every project has its own mental model: the commands you run, the things you need to remember, the tasks made and the ones still pending. **squid** gives developers a context for the project, making it easier to remember aliases, have notes and manage todos. It stores all of that inside a `.squid` folder in a easy to edit json format at the root of your project, so the context travels with the code, where it belongs.
 
-Every project has its own mental model: the commands you run, the things you need to remember, the tasks still pending. squid stores all of that inside a `.squid` folder at the root of your project, so the context travels with the repo.
+```
+.squid/
+  context.json   # shell aliases
+  notes.json     # project notes
+  todos.json     # todo items
+```
 
 ## Installation
 
@@ -55,17 +60,23 @@ Navigate to your project root and run:
 squid init
 ```
 
-This creates a `.squid/` folder and walks you through setting up your context. You can choose a **predefined** context (Go, Node.js, Python, React, React Native, Next.js) or define your own aliases from scratch.
+This creates a `.squid/` folder and walks you through setting up your context. You can choose a **predefined** context (Go, Node.js, Python, React, React Native, Next.js) or define a custom one, where you define your own aliases from scratch. If you do custom a terminal editor will open where you can write your aliases.
 
 ### Shell hook
 
-For aliases to actually apply to your shell session, squid needs a small hook in your shell config. During `init` you will be prompted to set it up, or you can run it separately at any time:
+The main functionality of squid is being able to have custom alises per project per terminal session, now for this to happen squid needs a small hook in your shell config. During `init` you will be prompted to set it up, or you can run it separately at any time:
 
 ```sh
 squid init shell
 ```
 
-This adds a wrapper function to your `.zshrc`, `.bashrc`, or `config.fish` that intercepts `squid context activate` and pipes it through `eval`.
+This adds a wrapper function to your `.zshrc` or `.bashrc` that intercepts `squid context activate` and pipes it through `eval`.
+
+That being said if you prefer not to do it you can run the activate in the following manner (be aware that everytime that you want to activate the context, you will need to do this if the hook isn't present):
+
+```sh
+eval "$(squid context activate)"
+```
 
 ## Commands
 
@@ -74,9 +85,9 @@ This adds a wrapper function to your `.zshrc`, `.bashrc`, or `config.fish` that 
 Initialize squid in the current directory.
 
 ```sh
-squid init           # interactive setup
-squid init shell     # install the shell hook only
-squid init -h        # show help
+squid init                      # interactive setup
+squid init shell                # install only the shell hook
+squid init -h                   # show help
 ```
 
 ---
@@ -86,11 +97,11 @@ squid init -h        # show help
 Manage your project's shell aliases — short names for the commands you run most.
 
 ```sh
-squid context add              # open your $EDITOR to add or edit aliases
-squid context list             # list all aliases with their IDs
-squid context activate         # load aliases into the current shell session
-squid context del <id>         # delete an alias by ID
-squid context -h               # show help
+squid context add               # open your $EDITOR to add or edit aliases
+squid context list              # list all aliases with their IDs
+squid context activate          # load aliases into the current shell session
+squid context del <id>          # delete an alias by ID
+squid context -h                # show help
 ```
 
 **Alias format**
@@ -109,6 +120,8 @@ Rules:
 - Lines starting with `#` are treated as comments and ignored
 
 **Activating your context**
+
+This is the most important command and why squid was created. This command will execute the defined aliases, making the current session of the terminal custom to the project you are working on, this way you won't have to remember commands or look them up.
 
 ```sh
 squid context activate
@@ -151,25 +164,3 @@ squid todos -h               # show help
 ```
 
 Todo text is capped at 280 characters.
-
----
-
-## Storage
-
-Everything lives inside `.squid/` at your project root:
-
-```
-.squid/
-  context.json   # shell aliases
-  notes.json     # project notes
-  todos.json     # todo items
-```
-
-You can commit `.squid/` to share context with your team, or add it to `.gitignore` to keep it personal.
-
-## Global flags
-
-```sh
-squid -h    # show top-level help
-```
-
