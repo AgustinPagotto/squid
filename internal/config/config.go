@@ -58,12 +58,19 @@ func OpenInEditor(helpText string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() {
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			fmt.Printf("failed to remove temp file: %v", err)
+		}
+	}()
 
 	if _, err = tmpFile.WriteString(helpText); err != nil {
 		return "", err
 	}
-	tmpFile.Close()
+	err = tmpFile.Close()
+	if err != nil {
+		return "", err
+	}
 
 	cmd := exec.Command(getEditor(), tmpFile.Name())
 	cmd.Stdin = os.Stdin

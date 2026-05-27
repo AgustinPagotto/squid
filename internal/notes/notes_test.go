@@ -9,7 +9,9 @@ func newTestStorageWithNotes(t *testing.T, notes ...Note) *NoteStorage {
 	t.Helper()
 	newNoteStorage := &NoteStorage{Path: t.TempDir() + "/notes.json"}
 	for _, note := range notes {
-		newNoteStorage.addNote(note)
+		if err := newNoteStorage.addNote(note); err != nil {
+			t.Fatalf("addNote() error = %v", err)
+		}
 	}
 	return newNoteStorage
 }

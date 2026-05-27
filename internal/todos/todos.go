@@ -90,6 +90,9 @@ func handleAdd(args []string, ts TodoStorageInterface) error {
 
 func handleToggle(ts TodoStorageInterface) error {
 	todos, err := ts.loadTodos()
+	if err != nil {
+		return err
+	}
 	for _, t := range todos {
 		if t.IsDone {
 			fmt.Printf("  %2d  [✓] %s\n", t.ID, t.Title)
@@ -99,7 +102,10 @@ func handleToggle(ts TodoStorageInterface) error {
 	}
 	fmt.Print("\nToggle todo (id): ")
 	var input string
-	fmt.Scanln(&input)
+	_, err = fmt.Scanln(&input)
+	if err != nil {
+		return err
+	}
 	parsedId, err := strconv.Atoi(strings.TrimSpace(input))
 	if err != nil {
 		return fmt.Errorf("invalid id")
@@ -119,7 +125,10 @@ func handleDelete(ts TodoStorageInterface, id int) error {
 	}
 	fmt.Printf("Are you sure you want to delete todo: %q? [Y/n]: ", todo.Title)
 	var input string
-	fmt.Scanln(&input)
+	_, err = fmt.Scanln(&input)
+	if err != nil {
+		return err
+	}
 	input = strings.TrimSpace(strings.ToLower(input))
 	if input != "" && input != "y" && input != "yes" {
 		return fmt.Errorf("delete aborted")
@@ -180,7 +189,10 @@ func handleShow(ts TodoStorageInterface, id int) error {
 func handleClear(ts TodoStorageInterface) error {
 	fmt.Print("This will delete all of the done todos [Y/n]: ")
 	var input string
-	fmt.Scanln(&input)
+	_, err := fmt.Scanln(&input)
+	if err != nil {
+		return err
+	}
 	input = strings.TrimSpace(strings.ToLower(input))
 	if input != "" && input != "y" && input != "yes" {
 		return fmt.Errorf("clear aborted")

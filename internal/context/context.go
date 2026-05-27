@@ -88,7 +88,10 @@ func handleDelete(cs ContextStorageInterface, id int) error {
 	}
 	fmt.Printf("Are you sure you want to delete alias: %q? [Y/n]: ", alias.AliasCommand)
 	var input string
-	fmt.Scanln(&input)
+	_, err = fmt.Scanln(&input)
+	if err != nil {
+		return err
+	}
 	input = strings.TrimSpace(strings.ToLower(input))
 	if input != "" && input != "y" && input != "yes" {
 		return fmt.Errorf("delete aborted")

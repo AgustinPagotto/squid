@@ -48,7 +48,10 @@ func Init(args []string) error {
 				return nil
 			}
 			if overrideConfirmed {
-				os.RemoveAll(".squid")
+				err := os.RemoveAll(".squid")
+				if err != nil {
+					return err
+				}
 			}
 			err := os.Mkdir(".squid", config.DirPerm)
 			if err != nil {
@@ -65,7 +68,10 @@ func Init(args []string) error {
 			return nil
 		case FlowCustom:
 			if overrideConfirmed {
-				os.RemoveAll(".squid")
+				err := os.RemoveAll(".squid")
+				if err != nil {
+					return err
+				}
 			}
 			err := os.Mkdir(".squid", config.DirPerm)
 			if err != nil {
@@ -133,7 +139,10 @@ func giveInitialOptions() (Flow, Action) {
 	for {
 		fmt.Print("  Select [1-3]: ")
 		var input string
-		fmt.Scanln(&input)
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			return 0, ActionExit
+		}
 		switch input {
 		case "1", "2":
 			n, _ := strconv.Atoi(input)
@@ -151,7 +160,10 @@ func predefinedInit() (Language, Action) {
 	for {
 		fmt.Print("  Select [1-7]: ")
 		var input string
-		fmt.Scanln(&input)
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			return 0, ActionExit
+		}
 		switch input {
 		case "1", "2", "3", "4", "5", "6":
 			n, _ := strconv.Atoi(input)
@@ -186,14 +198,18 @@ func addEvalPermissions(selectedShell Shell) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Printf("failed to close config file: %v", err)
+		}
+	}()
 
 	existing, err := io.ReadAll(f)
 	if err != nil {
 		return err
 	}
 	if strings.Contains(string(existing), selectedShell.evalString()) {
-		return fmt.Errorf("Shell hook already present, no need to add it again.")
+		return fmt.Errorf("Shell hook already present, no need to add it again")
 	}
 
 	_, err = f.WriteString(selectedShell.evalString())
@@ -205,7 +221,10 @@ func selectShell() (Shell, Action) {
 	for {
 		fmt.Print("  Select [1-4]: ")
 		var input string
-		fmt.Scanln(&input)
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			return 0, ActionExit
+		}
 		switch input {
 		case "1", "2", "3":
 			n, _ := strconv.Atoi(input)
@@ -222,7 +241,10 @@ func showOverrideWarning() bool {
 	for {
 		fmt.Print("  Select [1-2]: ")
 		var input string
-		fmt.Scanln(&input)
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			return false
+		}
 		switch strings.TrimSpace(input) {
 		case "1":
 			return true
@@ -239,7 +261,10 @@ func shellNextDialog() bool {
 	for {
 		fmt.Print("  Select [1-2]: ")
 		var input string
-		fmt.Scanln(&input)
+		_, err := fmt.Scanln(&input)
+		if err != nil {
+			return false
+		}
 		switch strings.TrimSpace(input) {
 		case "1":
 			return true

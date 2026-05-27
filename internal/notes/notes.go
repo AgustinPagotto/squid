@@ -84,7 +84,11 @@ func Handle(args []string, ns NoteStorageInterface) {
 			fmt.Println(err)
 			return
 		}
-		handleSearch(ns, searchTerm)
+		err = handleSearch(ns, searchTerm)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	default:
 		fmt.Println("unknown subcommand:", args[0])
 	}
@@ -130,7 +134,10 @@ func handleDelete(ns NoteStorageInterface, id int) error {
 	}
 	fmt.Printf("Are you sure you want to delete note: %q? [Y/n]: ", note.Title)
 	var input string
-	fmt.Scanln(&input)
+	_, err = fmt.Scanln(&input)
+	if err != nil {
+		return err
+	}
 	input = strings.TrimSpace(strings.ToLower(input))
 	if input != "" && input != "y" && input != "yes" {
 		return fmt.Errorf("delete aborted")
@@ -179,10 +186,10 @@ func handleSearch(ns NoteStorageInterface, searchTerm string) error {
 	if err != nil {
 		return err
 	}
-	var bodies []string
+	//var bodies []string
 	var titles []string
 	for _, note := range notes {
-		bodies = append(bodies, note.Body)
+		//bodies = append(bodies, note.Body)
 		titles = append(titles, note.Title)
 	}
 	titleScores := fuzzy.Find(searchTerm, titles)

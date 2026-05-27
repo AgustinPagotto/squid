@@ -14,7 +14,9 @@ func newTestStoreWithTodos(t *testing.T, todos ...Todo) *TodoStorage {
 	t.Helper()
 	ts := newTestStore(t)
 	for _, todo := range todos {
-		ts.addTodo(todo)
+		if err := ts.addTodo(todo); err != nil {
+			t.Fatalf("addTodo() error = %v", err)
+		}
 	}
 	return ts
 }

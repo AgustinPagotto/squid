@@ -152,7 +152,9 @@ func TestHandleList(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cs := &ContextStorage{Path: t.TempDir() + "/context.json"}
-			cs.persistContext(tt.aliases)
+			if err := cs.persistContext(tt.aliases); err != nil {
+				t.Fatalf("persistContext() error = %v", err)
+			}
 			err := handleList(cs)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("handleList() error = %v, wantErr %v", err, tt.wantErr)
@@ -182,7 +184,9 @@ func TestHandleActivate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cs := &ContextStorage{Path: t.TempDir() + "/context.json"}
-			cs.persistContext(tt.aliases)
+			if err := cs.persistContext(tt.aliases); err != nil {
+				t.Fatalf("persistContext() error = %v", err)
+			}
 			if err := handleActivate(cs); (err != nil) != tt.wantErr {
 				t.Errorf("handleActivate() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -215,7 +219,9 @@ func TestContextLoadAliases(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			cs := &ContextStorage{Path: t.TempDir() + "/context.json"}
-			cs.persistContext(tt.aliases)
+			if err := cs.persistContext(tt.aliases); err != nil {
+				t.Fatalf("persistContext() error = %v", err)
+			}
 			aliases, err := cs.loadAliases()
 			if tt.wantAmountAliases != len(aliases) {
 				t.Errorf("amount of aliases = %d, want %d", len(aliases), tt.wantAmountAliases)
@@ -233,7 +239,9 @@ func TestContextStorageFindAlias(t *testing.T) {
 		{ID: 1, AliasCommand: `test="go test ./..."`},
 	}
 	cs := &ContextStorage{Path: t.TempDir() + "/context.json"}
-	cs.persistContext(aliases)
+	if err := cs.persistContext(aliases); err != nil {
+		t.Fatalf("persistContext() error = %v", err)
+	}
 
 	tests := []struct {
 		name    string
@@ -276,7 +284,9 @@ func TestContextStorageDelAlias(t *testing.T) {
 		{ID: 1, AliasCommand: `test="go test ./..."`},
 	}
 	cs := &ContextStorage{Path: t.TempDir() + "/context.json"}
-	cs.persistContext(aliases)
+	if err := cs.persistContext(aliases); err != nil {
+		t.Fatalf("persistContext() error = %v", err)
+	}
 
 	tests := []struct {
 		name       string

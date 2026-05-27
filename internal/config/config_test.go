@@ -17,34 +17,48 @@ func chdirTemp(t *testing.T) string {
 	if err := os.Chdir(tmp); err != nil {
 		t.Fatalf("could not chdir to temp dir: %v", err)
 	}
-	t.Cleanup(func() { os.Chdir(original) })
+	t.Cleanup(func() {
+		if err := os.Chdir(original); err != nil {
+			t.Errorf("cleanup: failed to restore cwd: %v", err)
+		}
+	})
 	return tmp
 }
 
 func TestFindRoot(t *testing.T) {
 	tests := []struct {
 		name    string
-		setup   func(root string)
+		setup   func(t *testing.T, root string)
 		wantErr error
 		wantDir bool
 	}{
 		{
 			name:    ".squid exists in cwd",
-			setup:   func(root string) { os.Mkdir(filepath.Join(root, ".squid"), DirPerm) },
+			setup:   func(t *testing.T, root string) {
+				if err := os.Mkdir(filepath.Join(root, ".squid"), DirPerm); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
+			},
 			wantDir: true,
 		},
 		{
 			name: ".squid exists in parent dir",
-			setup: func(root string) {
-				os.Mkdir(filepath.Join(root, ".squid"), DirPerm)
-				os.Mkdir(filepath.Join(root, "subdir"), DirPerm)
-				os.Chdir(filepath.Join(root, "subdir"))
+			setup: func(t *testing.T, root string) {
+				if err := os.Mkdir(filepath.Join(root, ".squid"), DirPerm); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
+				if err := os.Mkdir(filepath.Join(root, "subdir"), DirPerm); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
+				if err := os.Chdir(filepath.Join(root, "subdir")); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
 			},
 			wantDir: true,
 		},
 		{
 			name:    "no .squid anywhere",
-			setup:   func(root string) {},
+			setup:   func(t *testing.T, root string) {},
 			wantErr: ErrRootNotFound,
 		},
 	}
@@ -52,7 +66,7 @@ func TestFindRoot(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			root := chdirTemp(t)
-			tt.setup(root)
+			tt.setup(t, root)
 
 			got, err := FindRoot()
 
@@ -75,7 +89,7 @@ func TestFindRoot(t *testing.T) {
 func TestFindShellConfigurationFile(t *testing.T) {
 	tests := []struct {
 		name     string
-		setup    func(home string)
+		setup    func(t *testing.T, home string)
 		fileName string
 		wantErr  error
 		wantPath func(home string) string
@@ -83,26 +97,36 @@ func TestFindShellConfigurationFile(t *testing.T) {
 		{
 			name:     "file at home root",
 			fileName: ".zshrc",
-			setup: func(home string) {
-				os.WriteFile(filepath.Join(home, ".zshrc"), []byte{}, FilePerm)
+			setup: func(t *testing.T, home string) {
+				if err := os.WriteFile(filepath.Join(home, ".zshrc"), []byte{}, FilePerm); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
 			},
 			wantPath: func(home string) string { return filepath.Join(home, ".zshrc") },
 		},
 		{
 			name:     "file inside .config",
 			fileName: ".bashrc",
-			setup: func(home string) {
-				os.MkdirAll(filepath.Join(home, ".config"), DirPerm)
-				os.WriteFile(filepath.Join(home, ".config", ".bashrc"), []byte{}, FilePerm)
+			setup: func(t *testing.T, home string) {
+				if err := os.MkdirAll(filepath.Join(home, ".config"), DirPerm); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
+				if err := os.WriteFile(filepath.Join(home, ".config", ".bashrc"), []byte{}, FilePerm); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
 			},
 			wantPath: func(home string) string { return filepath.Join(home, ".config", ".bashrc") },
 		},
 		{
 			name:     "file inside .config/zsh",
 			fileName: ".zshrc",
-			setup: func(home string) {
-				os.MkdirAll(filepath.Join(home, ".config", "zsh"), DirPerm)
-				os.WriteFile(filepath.Join(home, ".config", "zsh", ".zshrc"), []byte{}, FilePerm)
+			setup: func(t *testing.T, home string) {
+				if err := os.MkdirAll(filepath.Join(home, ".config", "zsh"), DirPerm); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
+				if err := os.WriteFile(filepath.Join(home, ".config", "zsh", ".zshrc"), []byte{}, FilePerm); err != nil {
+					t.Fatalf("setup: %v", err)
+				}
 			},
 			wantPath: func(home string) string {
 				return filepath.Join(home, ".config", "zsh", ".zshrc")
@@ -111,7 +135,7 @@ func TestFindShellConfigurationFile(t *testing.T) {
 		{
 			name:     "file not found anywhere",
 			fileName: ".zshrc",
-			setup:    func(home string) {},
+			setup:    func(t *testing.T, home string) {},
 			wantErr:  ErrConfigFileNotFound,
 		},
 	}
@@ -119,7 +143,7 @@ func TestFindShellConfigurationFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			home := t.TempDir()
-			tt.setup(home)
+			tt.setup(t, home)
 
 			got, err := FindShellConfigurationFile(tt.fileName, home)
 
