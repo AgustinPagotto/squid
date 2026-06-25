@@ -131,7 +131,7 @@ const overrideWarningTemplate = `
 
 const zshEvalConfig = `
 squid() {
-  if [[ "$1 $2" == "context activate" ]]; then
+  if [[ "$1 $2" == "context activate" || "$1 $2" == "context ac" ]]; then
     eval "$(command squid "$@")"
   else
     command squid "$@"
